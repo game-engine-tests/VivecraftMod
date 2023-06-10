@@ -47,6 +47,9 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL21;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -280,10 +283,7 @@ public abstract class MinecraftVRMixin extends ReentrantBlockableEventLoop<Runna
     @Inject(method = "<init>", at = @At("RETURN"))
     void afterInit(GameConfig gameConfig, CallbackInfo ci) {
         RenderPassManager.INSTANCE = new RenderPassManager((MainTarget) this.getMainRenderTarget());
-    }
 
-    @ModifyArg(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setOverlay(Lnet/minecraft/client/gui/screens/Overlay;)V"), method = "<init>", index = 0)
-    public Overlay initVivecraft(Overlay overlay) {
         try {
             VRSettings.initSettings((Minecraft) (Object) this, this.gameDirectory);
             if (VRState.vrEnabled) {
@@ -292,7 +292,6 @@ public abstract class MinecraftVRMixin extends ReentrantBlockableEventLoop<Runna
         } catch (Exception exception) {
             exception.printStackTrace();
         }
-        return overlay;
     }
 
     @Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;delayedCrash:Ljava/util/function/Supplier;", shift = Shift.BEFORE), method = "destroy()V")
@@ -548,6 +547,16 @@ public abstract class MinecraftVRMixin extends ReentrantBlockableEventLoop<Runna
                 this.profiler.pop();
                 this.renderSingleView(renderpass, f, bl);
                 this.profiler.pop();
+
+                if(renderpass == RenderPass.LEFT) {
+                    GL11.glBindTexture(GL11.GL_TEXTURE_2D, ClientDataHolderVR.getInstance().vrRenderer.LeftEyeTextureId);
+                    GL20.glBindBuffer(GL21.GL_PIXEL_PACK_BUFFER, ClientDataHolderVR.getInstance().vrRenderer.pbo1);
+                    GL20.glGetTexImage(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, 0);
+                } else if(renderpass == RenderPass.RIGHT) {
+                    GL11.glBindTexture(GL11.GL_TEXTURE_2D, ClientDataHolderVR.getInstance().vrRenderer.RightEyeTextureId);
+                    GL20.glBindBuffer(GL21.GL_PIXEL_PACK_BUFFER, ClientDataHolderVR.getInstance().vrRenderer.pbo2);
+                    GL20.glGetTexImage(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, 0);
+                }
 
                 if (ClientDataHolderVR.getInstance().grabScreenShot) {
                     boolean flag;

@@ -477,10 +477,6 @@ public class MCOpenVR extends MCVR {
         List<Map<String, Object>> list3 = new ArrayList<>();
         list3.add(ImmutableMap.<String, Object>builder().put("controller_type", "vive_controller").put("binding_url", "vive_defaults.json").build());
         list3.add(ImmutableMap.<String, Object>builder().put("controller_type", "oculus_touch").put("binding_url", "oculus_defaults.json").build());
-        list3.add(ImmutableMap.<String, Object>builder().put("controller_type", "holographic_controller").put("binding_url", "wmr_defaults.json").build());
-        list3.add(ImmutableMap.<String, Object>builder().put("controller_type", "knuckles").put("binding_url", "knuckles_defaults.json").build());
-        list3.add(ImmutableMap.<String, Object>builder().put("controller_type", "vive_cosmos_controller").put("binding_url", "cosmos_defaults.json").build());
-        list3.add(ImmutableMap.<String, Object>builder().put("controller_type", "vive_tracker_camera").put("binding_url", "tracker_defaults.json").build());
         map.put("default_bindings", list3);
 
         try {
@@ -496,10 +492,6 @@ public class MCOpenVR extends MCVR {
         String s1 = this.dh.vrSettings.reverseHands ? "_reversed" : "";
         Utils.loadAssetToFile("input/vive_defaults" + s1 + ".json", new File("openvr/input/vive_defaults.json"), false);
         Utils.loadAssetToFile("input/oculus_defaults" + s1 + ".json", new File("openvr/input/oculus_defaults.json"), false);
-        Utils.loadAssetToFile("input/wmr_defaults" + s1 + ".json", new File("openvr/input/wmr_defaults.json"), false);
-        Utils.loadAssetToFile("input/knuckles_defaults" + s1 + ".json", new File("openvr/input/knuckles_defaults.json"), false);
-        Utils.loadAssetToFile("input/cosmos_defaults" + s1 + ".json", new File("openvr/input/cosmos_defaults.json"), false);
-        Utils.loadAssetToFile("input/tracker_defaults.json", new File("openvr/input/tracker_defaults.json"), false);
     }
 
     private long getActionHandle(String name) {
@@ -638,8 +630,8 @@ public class MCOpenVR extends MCVR {
                             if (l == 0L) {
                                 flag = true;
                             } else {
-                                var renderModelComponentState = RenderModelComponentState.calloc(stack);
-                                boolean b0 = VRRenderModels_GetComponentStateForDevicePath(renderModelName, componentName, l, RenderModelControllerModeState.calloc(stack), renderModelComponentState);
+                                var renderModelComponentState = RenderModelComponentState.callocStack(stack);
+                                boolean b0 = VRRenderModels_GetComponentStateForDevicePath(renderModelName, componentName, l, RenderModelControllerModeState.callocStack(stack), renderModelComponentState);
 
                                 if (!b0) {
                                     flag = true;
@@ -1039,7 +1031,7 @@ public class MCOpenVR extends MCVR {
             }
 
             try (MemoryStack stack = MemoryStack.stackPush()) {
-                var hmdmatrix34 = HmdMatrix34.calloc(stack);
+                var hmdmatrix34 = HmdMatrix34.callocStack(stack);
                 OpenVRUtil.convertSteamVRMatrix3ToMatrix4f(VRSystem_GetEyeToHeadTransform(0, hmdmatrix34), this.hmdPoseLeftEye);
                 OpenVRUtil.convertSteamVRMatrix3ToMatrix4f(VRSystem_GetEyeToHeadTransform(1, hmdmatrix34), this.hmdPoseRightEye);
             }

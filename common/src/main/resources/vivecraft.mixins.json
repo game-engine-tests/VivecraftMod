@@ -6,8 +6,8 @@
   "client": [
     "client.blaze3d.RenderSystemAccessor",
     "client.blaze3d.RenderTargetMixin",
-    "client.gui.screens.TitleScreenMixin",
     "client.gui.screens.ScreenMixin",
+    "client.gui.screens.TitleScreenMixin",
     "client.main.MainMixin",
     "client.player.AbstractClientPlayerMixin",
     "client.renderer.block.LiquidBlockRendererMixin",
@@ -64,6 +64,7 @@
   ],
   "minVersion": "0.8.4",
   "mixins": [
+    "client_vr.OpenVRMixin",
     "server.ChunkMapAccessor",
     "server.MinecraftServerMixin",
     "server.ServerGamePacketListenerImplMixin",
