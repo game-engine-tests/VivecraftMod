@@ -599,12 +599,14 @@ public class ClimbTracker extends Tracker
                         {
                             d0 = d8 - vec36.z;
                             d10 = (double)((float)blockpos2.getX() + 0.5F);
+                            d10 +=  (1.0 - Math.min(ClientDataHolderVR.getInstance().vrPlayer.worldScale, 1.0)) * (j == 4 ? 0.5 : -0.5);
                         }
                     }
                     else
                     {
                         d10 = d4 - vec36.x;
                         d0 = (double)((float)blockpos2.getZ() + 0.5F);
+                        d0 +=  (1.0 - Math.min(ClientDataHolderVR.getInstance().vrPlayer.worldScale, 1.0)) * (j == 2 ? 0.5 : -0.5);
                     }
                 }
 
