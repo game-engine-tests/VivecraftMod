@@ -5,6 +5,11 @@ public class VLoader {
         System.loadLibrary("openvr_api");
     }
 
-    public static native int createGLImage(int width, int height);
-    public static native void writeImage(int tex, int width, int height, long byteBuf);
+    public static native long createVKImage(int width, int height, boolean isLeft);
+    public static native int getDMABuf(boolean isLeft);
+    public static native long getInstance();
+    public static native long getDevice();
+    public static native long getPhysicalDevice();
+    public static native long getQueue();
+    public static native int getQueueIndex();
 }
