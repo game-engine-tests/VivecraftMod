@@ -3,6 +3,7 @@ package org.vivecraft.client_vr.provider;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.GlUtil;
+import com.mojang.blaze3d.shaders.ProgramManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.GraphicsStatus;
@@ -20,19 +21,19 @@ import org.lwjgl.opengl.GL43;
 import org.lwjgl.system.MemoryUtil;
 import org.vivecraft.client.extensions.RenderTargetExtension;
 import org.vivecraft.client_vr.ClientDataHolderVR;
-import org.vivecraft.mod_compat_vr.ShadersHelper;
 import org.vivecraft.client_vr.VRTextureTarget;
 import org.vivecraft.client_vr.extensions.GameRendererExtension;
-import org.vivecraft.client_vr.settings.VRSettings;
 import org.vivecraft.client_vr.gameplay.screenhandlers.GuiHandler;
 import org.vivecraft.client_vr.gameplay.screenhandlers.KeyboardHandler;
 import org.vivecraft.client_vr.gameplay.screenhandlers.RadialHandler;
 import org.vivecraft.client_vr.gameplay.trackers.TelescopeTracker;
-import org.vivecraft.client_xr.render_pass.WorldRenderPass;
 import org.vivecraft.client_vr.render.RenderConfigException;
 import org.vivecraft.client_vr.render.RenderPass;
 import org.vivecraft.client_vr.render.ShaderHelper;
 import org.vivecraft.client_vr.render.VRShaders;
+import org.vivecraft.client_vr.settings.VRSettings;
+import org.vivecraft.client_xr.render_pass.WorldRenderPass;
+import org.vivecraft.mod_compat_vr.ShadersHelper;
 import org.vivecraft.mod_compat_vr.resolutioncontrol.ResolutionControlHelper;
 
 import java.nio.FloatBuffer;
@@ -130,7 +131,6 @@ public abstract class VRRenderer {
 
             RenderSystem.stencilFunc(GL11.GL_ALWAYS, 0, 0xFF); // Set any stencil to 0
             RenderSystem.colorMask(false, false, false, true);
-
         } else {
             //clear whole image for total transparency
             RenderSystem.clearStencil(0);
@@ -159,7 +159,9 @@ public abstract class VRRenderer {
         RenderSystem.getModelViewStack().pushPose();
         RenderSystem.getModelViewStack().setIdentity();
         if (inverse) //draw on far clip
+        {
             RenderSystem.getModelViewStack().translate(0, 0, -20);
+        }
         RenderSystem.applyModelViewMatrix();
         int s = GlStateManager._getInteger(GL43.GL_CURRENT_PROGRAM);
 
@@ -178,7 +180,7 @@ public abstract class VRRenderer {
 
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.enableCull();
-        GlStateManager._glUseProgram(s);
+        ProgramManager.glUseProgram(s);
         RenderSystem.stencilFunc(GL11.GL_NOTEQUAL, 255, 1);
         RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP);
         RenderSystem.stencilMask(0); // Dont Write to stencil buffer
@@ -246,12 +248,12 @@ public abstract class VRRenderer {
         BufferBuilder builder = Tesselator.getInstance().getBuilder();
         builder.begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION);
         int i = 32;
-        float f = (float) (width / 2);
-        builder.vertex((float) (width / 2), (float) (width / 2), 0.0F).endVertex();
+        float f = width / 2;
+        builder.vertex(width / 2, width / 2, 0.0F).endVertex();
         for (int j = 0; j < i + 1; ++j) {
             float f1 = (float) j / (float) i * (float) Math.PI * 2.0F;
-            float f2 = (float) ((double) (width / 2) + Math.cos((double) f1) * (double) f);
-            float f3 = (float) ((double) (width / 2) + Math.sin((double) f1) * (double) f);
+            float f2 = (float) ((double) (width / 2) + Math.cos(f1) * (double) f);
+            float f3 = (float) ((double) (width / 2) + Math.sin(f1) * (double) f);
             builder.vertex(f2, f3, 0.0F).endVertex();
         }
         BufferUploader.drawWithShader(builder.end());
@@ -261,7 +263,9 @@ public abstract class VRRenderer {
         Minecraft mc = Minecraft.getInstance();
         ClientDataHolderVR dh = ClientDataHolderVR.getInstance();
         float[] verts = getStencilMask(dh.currentPass);
-        if (verts == null) return;
+        if (verts == null) {
+            return;
+        }
 
         BufferBuilder builder = Tesselator.getInstance().getBuilder();
         builder.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION);
@@ -360,8 +364,7 @@ public abstract class VRRenderer {
             }
         }
 
-        if (ShadersHelper.needsSameSizeBuffers())
-        {
+        if (ShadersHelper.needsSameSizeBuffers()) {
             mirrorFBWidth = eyeFBWidth;
             mirrorFBHeight = eyeFBHeight;
         }
@@ -372,8 +375,7 @@ public abstract class VRRenderer {
         int telescopeFBwidth = 720;
         int telescopeFBheight = 720;
 
-        if (ShadersHelper.needsSameSizeBuffers())
-        {
+        if (ShadersHelper.needsSameSizeBuffers()) {
             telescopeFBwidth = eyeFBWidth;
             telescopeFBheight = eyeFBHeight;
         }
@@ -384,18 +386,14 @@ public abstract class VRRenderer {
         int cameraFBwidth = Math.round(1920.0F * ClientDataHolderVR.getInstance().vrSettings.handCameraResScale);
         int cameraFBheight = Math.round(1080.0F * ClientDataHolderVR.getInstance().vrSettings.handCameraResScale);
 
-        if (ShadersHelper.needsSameSizeBuffers())
-        {
+        if (ShadersHelper.needsSameSizeBuffers()) {
             // correct for camera aspect, since that is 16:9
-            float aspect = (float)cameraFBwidth / (float)cameraFBheight;
-            if (aspect > (float)(eyeFBWidth / eyeFBHeight))
-            {
+            float aspect = (float) cameraFBwidth / (float) cameraFBheight;
+            if (aspect > (float) (eyeFBWidth / eyeFBHeight)) {
                 cameraFBwidth = eyeFBWidth;
-                cameraFBheight = Math.round((float)eyeFBWidth / aspect);
-            }
-            else
-            {
-                cameraFBwidth = Math.round((float)eyeFBHeight * aspect);
+                cameraFBheight = Math.round((float) eyeFBWidth / aspect);
+            } else {
+                cameraFBwidth = Math.round((float) eyeFBHeight * aspect);
                 cameraFBheight = eyeFBHeight;
             }
         }
@@ -484,7 +482,7 @@ public abstract class VRRenderer {
             Tuple<Integer, Integer> cameraSize = getCameraTextureSize(eyeFBWidth, eyeFBHeight);
 
             // main render target
-            ((RenderTargetExtension) WorldRenderPass.stereoXR.target).setUseStencil(dataholder.vrSettings.vrUseStencil);
+            ((RenderTargetExtension) WorldRenderPass.stereoXR.target).vivecraft$setUseStencil(dataholder.vrSettings.vrUseStencil);
             WorldRenderPass.stereoXR.resize(eyeFBWidth, eyeFBHeight);
             if (dataholder.vrSettings.useFsaa) {
                 this.fsaaFirstPassResultFBO.resize(eyew, eyeFBHeight, Minecraft.ON_OSX);
@@ -636,9 +634,9 @@ public abstract class VRRenderer {
             dataholder.print(this.cameraRenderFramebuffer.toString());
 
             this.checkGLError("Camera render framebuffer setup");
-            ((GameRendererExtension) minecraft.gameRenderer).setupClipPlanes();
-            this.eyeproj[0] = this.getProjectionMatrix(0, ((GameRendererExtension) minecraft.gameRenderer).getMinClipDistance(), ((GameRendererExtension) minecraft.gameRenderer).getClipDistance());
-            this.eyeproj[1] = this.getProjectionMatrix(1, ((GameRendererExtension) minecraft.gameRenderer).getMinClipDistance(), ((GameRendererExtension) minecraft.gameRenderer).getClipDistance());
+            ((GameRendererExtension) minecraft.gameRenderer).vivecraft$setupClipPlanes();
+            this.eyeproj[0] = this.getProjectionMatrix(0, ((GameRendererExtension) minecraft.gameRenderer).vivecraft$getMinClipDistance(), ((GameRendererExtension) minecraft.gameRenderer).vivecraft$getClipDistance());
+            this.eyeproj[1] = this.getProjectionMatrix(1, ((GameRendererExtension) minecraft.gameRenderer).vivecraft$getMinClipDistance(), ((GameRendererExtension) minecraft.gameRenderer).vivecraft$getClipDistance());
 
             if (dataholder.vrSettings.useFsaa) {
                 try {
@@ -679,7 +677,7 @@ public abstract class VRRenderer {
                 minecraft.screen.init(minecraft, l2, j3);
             }
 
-            long windowPixels = (long)minecraft.getWindow().getScreenWidth() * minecraft.getWindow().getScreenHeight();
+            long windowPixels = (long) minecraft.getWindow().getScreenWidth() * minecraft.getWindow().getScreenHeight();
             long vrPixels = eyeFBWidth * eyeFBHeight * 2L;
 
             if (list.contains(RenderPass.CENTER)) {
@@ -702,7 +700,6 @@ public abstract class VRRenderer {
             acceptReinits = false;
             ShadersHelper.maybeReloadShaders();
             acceptReinits = true;
-
         }
     }
 

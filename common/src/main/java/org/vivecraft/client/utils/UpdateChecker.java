@@ -6,6 +6,8 @@ import com.google.gson.JsonParser;
 import com.mojang.logging.LogUtils;
 import net.minecraft.SharedConstants;
 import org.vivecraft.client.Xplat;
+import org.vivecraft.client_vr.ClientDataHolderVR;
+import org.vivecraft.server.config.ServerConfig;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,7 +15,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class UpdateChecker {
@@ -26,8 +30,22 @@ public class UpdateChecker {
 
     public static boolean checkForUpdates() {
         System.out.println("Checking for Vivecraft Updates");
+
+        char updateType;
+        if (Xplat.isDedicatedServer()) {
+            // server
+            updateType = ServerConfig.checkForUpdateType.get().charAt(0);
+        } else {
+            // client
+            updateType = switch (ClientDataHolderVR.getInstance().vrSettings.updateType) {
+                case RELEASE -> 'r';
+                case BETA -> 'b';
+                case ALPHA -> 'a';
+            };
+        }
+
         try {
-            String apiURL = "https://api.modrinth.com/v2/project/vivecraft/version?loaders=[%22" +  Xplat.getModloader() + "%22]&game_versions=[%22" + SharedConstants.VERSION_STRING + "%22]";
+            String apiURL = "https://api.modrinth.com/v2/project/vivecraft/version?loaders=[%22" + Xplat.getModloader() + "%22]&game_versions=[%22" + SharedConstants.VERSION_STRING + "%22]";
             HttpURLConnection conn = (HttpURLConnection) new URL(apiURL).openConnection();
             // 10 seconds read and connect timeout
             conn.setConnectTimeout(10000);
@@ -45,25 +63,25 @@ public class UpdateChecker {
             List<Version> versions = new LinkedList<>();
 
             if (j.isJsonArray()) {
-                for(JsonElement element : j.getAsJsonArray()) {
+                for (JsonElement element : j.getAsJsonArray()) {
                     if (element.isJsonObject()) {
                         JsonObject obj = element.getAsJsonObject();
                         versions.add(
-                                new Version(obj.get("name").getAsString(),
-                                        obj.get("version_number").getAsString(),
-                                        obj.get("changelog").getAsString()));
+                            new Version(obj.get("name").getAsString(),
+                                obj.get("version_number").getAsString(),
+                                obj.get("changelog").getAsString()));
                     }
                 }
             }
             // sort the versions, modrinth doesn't guarantee them to be sorted.
             Collections.sort(versions);
 
-            String currentVersionNumber = Xplat.getModVersion() + "-" +Xplat.getModloader();
-            Version current = new Version(currentVersionNumber,currentVersionNumber,"");
+            String currentVersionNumber = Xplat.getModVersion() + "-" + Xplat.getModloader();
+            Version current = new Version(currentVersionNumber, currentVersionNumber, "");
 
             for (Version v : versions) {
-                if (current.compareTo(v) > 0) {
-                    changelog += "§a"+v.fullVersion+"§r" + ": \n" + v.changelog + "\n\n";
+                if (v.isVersionType(updateType) && current.compareTo(v) > 0) {
+                    changelog += "§a" + v.fullVersion + "§r" + ": \n" + v.changelog + "\n\n";
                     if (newestVersion.isEmpty()) {
                         newestVersion = v.fullVersion;
                     }
@@ -83,10 +101,10 @@ public class UpdateChecker {
 
     private static String inputStreamToString(InputStream inputStream) {
         return new BufferedReader(new InputStreamReader(inputStream))
-                .lines().collect(Collectors.joining("\n"));
+            .lines().collect(Collectors.joining("\n"));
     }
 
-    private static class Version implements Comparable<Version>{
+    private static class Version implements Comparable<Version> {
 
         public String fullVersion;
 
@@ -106,8 +124,8 @@ public class UpdateChecker {
             if (parts.length > 3) {
                 // prerelease
                 if (parts[2].matches("a\\d+")) {
-                    alpha = Integer.parseInt(parts[2].replaceAll("\\D+",""));
-                } else if (parts[2].matches("b\\d+\"")) {
+                    alpha = Integer.parseInt(parts[2].replaceAll("\\D+", ""));
+                } else if (parts[2].matches("b\\d+")) {
                     beta = Integer.parseInt(parts[2].replaceAll("\\D+", ""));
                 } else {
                     featureTest = true;
@@ -133,10 +151,18 @@ public class UpdateChecker {
             return -1;
         }
 
+        public boolean isVersionType(char versionType) {
+            return switch (versionType) {
+                case 'r' -> beta == 0 && alpha == 0 && !featureTest;
+                case 'b' -> beta >= 0 && alpha == 0 && !featureTest;
+                case 'a' -> alpha >= 0 && !featureTest;
+                default -> false;
+            };
+        }
+
         // two digits per segment, should be enough right?
         private long compareNumber() {
             return alpha + beta * 100L + (alpha + beta == 0 || featureTest ? 1000L : 0L) + patch * 100000L + minor * 10000000L + major * 1000000000L;
         }
     }
-
 }

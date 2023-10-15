@@ -11,7 +11,10 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL21;
-import org.lwjgl.openvr.*;
+import org.lwjgl.openvr.HiddenAreaMesh;
+import org.lwjgl.openvr.HmdMatrix44;
+import org.lwjgl.openvr.OpenVR;
+import org.lwjgl.openvr.VR;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.vivecraft.client.utils.Utils;
@@ -24,11 +27,12 @@ import org.vivecraft.utils.VLoader;
 import java.io.*;
 import java.nio.ByteBuffer;
 
-import static org.lwjgl.openvr.VRCompositor.*;
+import static org.lwjgl.openvr.VRCompositor.VRCompositor_PostPresentHandoff;
+import static org.lwjgl.openvr.VRCompositor.VRCompositor_Submit;
 import static org.lwjgl.openvr.VRSystem.*;
 
 public class OpenVRStereoRenderer extends VRRenderer {
-    private HiddenAreaMesh[] hiddenMeshes = new HiddenAreaMesh[2];
+    private final HiddenAreaMesh[] hiddenMeshes = new HiddenAreaMesh[2];
     private final MCOpenVR openvr;
 
     public OpenVRStereoRenderer(MCVR vr) {
