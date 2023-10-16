@@ -32,37 +32,6 @@ public abstract class TitleScreenMixin extends Screen {
 
     private Button updateButton;
 
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/TitleScreen;addRenderableWidget(Lnet/minecraft/client/gui/components/events/GuiEventListener;)Lnet/minecraft/client/gui/components/events/GuiEventListener;", shift = At.Shift.AFTER, ordinal = 1), method = "createNormalMenuOptions")
-    public void vivecraft$initFullGame(CallbackInfo ci) {
-        vivecraft$addVRModeButton();
-    }
-
-    @Inject(at = @At("TAIL"), method = "createDemoMenuOptions")
-    public void vivecraft$initDemo(CallbackInfo ci) {
-        vivecraft$addVRModeButton();
-    }
-
-    private void addVRModeButton() {
-        updateButton = new Button.Builder(Component.translatable("vivecraft.gui.update"), (button) -> minecraft.setScreen(new UpdateScreen()))
-                .size(56, 20)
-                .pos(this.width / 2 + 104, this.height / 4 + 96)
-                .build();
-
-        vivecraft$updateButton.visible = UpdateChecker.hasUpdate;
-
-        this.addRenderableWidget(vivecraft$updateButton);
-    }
-
-    @Inject(at = @At("TAIL"), method = "render")
-    public void vivecraft$renderToolTip(GuiGraphics guiGraphics, int i, int j, float f, CallbackInfo ci) {
-        vivecraft$updateButton.visible = UpdateChecker.hasUpdate;
-
-        if (VRState.vrInitialized && !VRState.vrRunning) {
-            Component hotswitchMessage = Component.translatable("vivecraft.messages.vrhotswitchinginfo");
-            guiGraphics.renderTooltip(font, font.split(hotswitchMessage, 280), width / 2 - 140 - 12, 17);
-        }
-    }
-
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/PanoramaRenderer;render(FF)V"), method = "render")
     public void vivecraft$maybeNoPanorama(PanoramaRenderer instance, float f, float g) {
         if (VRState.vrRunning && ClientDataHolderVR.getInstance().menuWorldRenderer.isReady()) {

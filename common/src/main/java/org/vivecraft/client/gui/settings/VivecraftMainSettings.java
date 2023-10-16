@@ -50,12 +50,6 @@ public class VivecraftMainSettings extends GuiListScreen {
         entries.add(new SettingsList.CategoryEntry(Component.literal("Vivecraft Buttons")));
 
         entries.add(new SettingsList.WidgetEntry(
-            Component.translatable("vivecraft.options.VR_TOGGLE_BUTTON_VISIBLE"),
-            CycleButton.onOffBuilder(ClientDataHolderVR.getInstance().vrSettings.vrToggleButtonEnabled).displayOnlyValue().create(0, 0, SettingsList.WidgetEntry.valueButtonWidth, 20, Component.empty(), (cycleButton, object) -> {
-                ClientDataHolderVR.getInstance().vrSettings.vrToggleButtonEnabled = !ClientDataHolderVR.getInstance().vrSettings.vrToggleButtonEnabled;
-                ClientDataHolderVR.getInstance().vrSettings.saveOptions();
-            })));
-        entries.add(new SettingsList.WidgetEntry(
             Component.translatable("vivecraft.options.VR_SETTINGS_BUTTON_VISIBLE"),
             CycleButton.onOffBuilder(ClientDataHolderVR.getInstance().vrSettings.vrSettingsButtonEnabled).displayOnlyValue().create(0, 0, SettingsList.WidgetEntry.valueButtonWidth, 20, Component.empty(), (cycleButton, object) -> {
                 ClientDataHolderVR.getInstance().vrSettings.vrSettingsButtonEnabled = !ClientDataHolderVR.getInstance().vrSettings.vrSettingsButtonEnabled;

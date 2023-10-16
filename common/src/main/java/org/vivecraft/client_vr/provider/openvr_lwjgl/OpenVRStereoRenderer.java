@@ -11,10 +11,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL21;
-import org.lwjgl.openvr.HiddenAreaMesh;
-import org.lwjgl.openvr.HmdMatrix44;
-import org.lwjgl.openvr.OpenVR;
-import org.lwjgl.openvr.VR;
+import org.lwjgl.openvr.*;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.vivecraft.client.utils.Utils;
@@ -182,7 +179,6 @@ public class OpenVRStereoRenderer extends VRRenderer {
     }
 
     public void endFrame() throws RenderConfigException {
-        GL11.glFlush();
         int i = VRCompositor_Submit(0, this.openvr.texType0, null, 0);
         int j = VRCompositor_Submit(1, this.openvr.texType1, null, 0);
         VRCompositor_PostPresentHandoff();
