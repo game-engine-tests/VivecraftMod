@@ -179,6 +179,7 @@ public class OpenVRStereoRenderer extends VRRenderer {
     }
 
     public void endFrame() throws RenderConfigException {
+        GL11.glFlush();
         int i = VRCompositor_Submit(0, this.openvr.texType0, null, 0);
         int j = VRCompositor_Submit(1, this.openvr.texType1, null, 0);
         VRCompositor_PostPresentHandoff();
