@@ -701,6 +701,8 @@ public abstract class VRRenderer {
 
             try {
                 minecraft.mainRenderTarget = this.framebufferVrRender;
+                VRShaders.setupGSR();
+                ShaderHelper.checkGLError("init gsr shader");
                 VRShaders.setupDepthMask();
                 ShaderHelper.checkGLError("init depth shader");
                 VRShaders.setupFOVReduction();
