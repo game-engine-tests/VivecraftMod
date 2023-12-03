@@ -60,7 +60,6 @@ import org.vivecraft.client.gui.VivecraftClickEvent;
 import org.vivecraft.client.gui.screens.ErrorScreen;
 import org.vivecraft.client.gui.screens.UpdateScreen;
 import org.vivecraft.client.network.ClientNetworking;
-import org.vivecraft.client.utils.UpdateChecker;
 import org.vivecraft.client.utils.Utils;
 import org.vivecraft.client_vr.ClientDataHolderVR;
 import org.vivecraft.client_vr.VRState;
@@ -231,8 +230,6 @@ public abstract class MinecraftVRMixin implements MinecraftExtension {
     public Overlay vivecraft$initVivecraft(Overlay overlay) {
         RenderPassManager.INSTANCE = new RenderPassManager((MainTarget) this.mainRenderTarget);
         VRSettings.initSettings((Minecraft) (Object) this, this.gameDirectory);
-        new Thread(UpdateChecker::checkForUpdates, "VivecraftUpdateThread").start();
-
         // register a resource reload listener, to reload the menu world
         resourceManager.registerReloadListener((ResourceManagerReloadListener) resourceManager -> {
             List<String> newPacks = resourceManager.listPacks().map(PackResources::packId).toList();
@@ -610,19 +607,6 @@ public abstract class MinecraftVRMixin implements MinecraftExtension {
     @Inject(at = @At("HEAD"), method = "tick()V")
     public void vivecraft$vrTick(CallbackInfo info) {
         ++ClientDataHolderVR.getInstance().tickCounter;
-
-        // general chat notifications
-        if (this.level != null) {
-            if (!ClientDataHolderVR.getInstance().showedUpdateNotification && UpdateChecker.hasUpdate && (ClientDataHolderVR.getInstance().vrSettings.alwaysShowUpdates || !UpdateChecker.newestVersion.equals(ClientDataHolderVR.getInstance().vrSettings.lastUpdate))) {
-                ClientDataHolderVR.getInstance().vrSettings.lastUpdate = UpdateChecker.newestVersion;
-                ClientDataHolderVR.getInstance().vrSettings.saveOptions();
-                ClientDataHolderVR.getInstance().showedUpdateNotification = true;
-                this.gui.getChat().addMessage(Component.translatable("vivecraft.messages.updateAvailable", Component.literal(UpdateChecker.newestVersion).withStyle(ChatFormatting.ITALIC, ChatFormatting.GREEN))
-                    .withStyle(style -> style
-                        .withClickEvent(new VivecraftClickEvent(VivecraftClickEvent.VivecraftAction.OPEN_SCREEN, new UpdateScreen()))
-                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("vivecraft.messages.click")))));
-            }
-        }
 
         // VR enabled only chat notifications
         if (VRState.vrInitialized && this.level != null && ClientDataHolderVR.getInstance().vrPlayer != null) {

@@ -15,6 +15,5 @@ public class PlayerListMixin {
     @Inject(at = @At("HEAD"), method = "placeNewPlayer")
     private void vivecraft$scheduleLoginMessages(Connection connection, ServerPlayer serverPlayer, CallbackInfo ci) {
         ServerUtil.scheduleWelcomeMessageOrKick(serverPlayer);
-        ServerUtil.sendUpdateNotificationIfOP(serverPlayer);
     }
 }

@@ -113,25 +113,20 @@ public class OpenVRStereoRenderer extends VRRenderer {
             throw new RuntimeException(e);
         }
 
-        long instance = VLoader.getInstance();
-        long pDev = VLoader.getPhysicalDevice();
-        long device = VLoader.getDevice();
-        long queue = VLoader.getQueue();
-        int index = VLoader.getQueueIndex();
-
         this.LeftEyeTextureId = GlStateManager._genTexture();
         int i = GlStateManager._getInteger(GL11.GL_TEXTURE_BINDING_2D);
         RenderSystem.bindTexture(this.LeftEyeTextureId);
         RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
         RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
         GlStateManager._texImage2D(GL11.GL_TEXTURE_2D, 0, GL21.GL_RGBA8, lwidth, lheight, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, null);
+
         VRVulkanTextureData leftData = VRVulkanTextureData.calloc().set(
                 nativeImageL,
-                device,
-                pDev,
-                instance,
-                queue,
-                index,
+                VLoader.getDevice(),
+                VLoader.getPhysicalDevice(),
+                VLoader.getInstance(),
+                VLoader.getQueue(),
+                VLoader.getQueueIndex(),
                 width,
                 height,
                 37,
@@ -150,6 +145,7 @@ public class OpenVRStereoRenderer extends VRRenderer {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
         this.RightEyeTextureId = GlStateManager._genTexture();
         RenderSystem.bindTexture(this.RightEyeTextureId);
         RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);

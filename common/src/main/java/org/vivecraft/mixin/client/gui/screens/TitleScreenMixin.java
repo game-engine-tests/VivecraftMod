@@ -13,7 +13,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.vivecraft.client.gui.screens.UpdateScreen;
-import org.vivecraft.client.utils.UpdateChecker;
 import org.vivecraft.client_vr.ClientDataHolderVR;
 import org.vivecraft.client_vr.VRState;
 

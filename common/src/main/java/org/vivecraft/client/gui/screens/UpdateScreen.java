@@ -8,7 +8,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.vivecraft.client.gui.widgets.TextScrollWidget;
-import org.vivecraft.client.utils.UpdateChecker;
 
 
 public class UpdateScreen extends Screen {
@@ -21,9 +20,6 @@ public class UpdateScreen extends Screen {
     }
 
     protected void init() {
-
-        this.addRenderableWidget(new TextScrollWidget(this.width / 2 - 155, 30, 310, this.height - 30 - 60, UpdateChecker.changelog));
-
         this.addRenderableWidget(new Button.Builder(Component.literal("Download from Modrinth"),
             ConfirmLinkScreen.confirmLink("https://modrinth.com/mod/vivecraft", this, true))
             .pos(this.width / 2 - 155, this.height - 56)

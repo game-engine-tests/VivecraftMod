@@ -6,7 +6,6 @@ import net.minecraft.commands.Commands;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import org.vivecraft.client.utils.UpdateChecker;
 import org.vivecraft.server.config.ConfigBuilder;
 import org.vivecraft.server.config.ServerConfig;
 
@@ -68,20 +67,6 @@ public class ServerUtil {
                     }
                 }
             }, (long) (ServerConfig.messageKickDelay.get() * 1000), TimeUnit.MILLISECONDS);
-        }
-    }
-
-    public static void sendUpdateNotificationIfOP(ServerPlayer serverPlayer) {
-        if (ServerConfig.checkForUpdate.get()) {
-            // don't send update notifications on singleplayer
-            if (serverPlayer.server.isDedicatedServer() && serverPlayer.server.getPlayerList().isOp(serverPlayer.getGameProfile())) {
-                // check for update on not the main thread
-                scheduler.schedule(() -> {
-                    if (UpdateChecker.checkForUpdates()) {
-                        serverPlayer.sendSystemMessage(Component.literal("Vivecraft update available: §a" + UpdateChecker.newestVersion));
-                    }
-                }, 0, TimeUnit.MILLISECONDS);
-            }
         }
     }
 
