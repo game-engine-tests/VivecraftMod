@@ -1,5 +1,6 @@
 package org.vivecraft.fabric;
 
+import com.mojang.blaze3d.platform.Window;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
@@ -20,6 +21,8 @@ public class VivecraftMod implements ModInitializer {
     public void onInitialize() {
         // init server config
         ServerConfig.init(null);
+
+        Window
 
         // add server config commands
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
