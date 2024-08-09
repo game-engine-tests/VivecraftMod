@@ -42,19 +42,6 @@ public class VRState {
             vrInitialized = true;
             ClientDataHolderVR dh = ClientDataHolderVR.getInstance();
             Minecraft instance = Minecraft.getInstance();
-            // make sure the lwjgl version is the right one
-            // TODO: move this into the init, does mean all callocs need to be done later
-            // check that the right lwjgl version is loaded that we ship the openvr part of
-            if (!Version.getVersion().startsWith("3.3.2")) {
-                String suppliedJar = "";
-                try {
-                    suppliedJar = new File(Version.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getName();
-                } catch (Exception e) {
-                    VRSettings.logger.error("couldn't check lwjgl source:", e);
-                }
-
-                throw new RenderConfigException("VR Init Error", Component.translatable("vivecraft.messages.rendersetupfailed", I18n.get("vivecraft.messages.invalidlwjgl", Version.getVersion(), "3.3.2", suppliedJar), "OpenVR_LWJGL"));
-            }
             switch (dh.vrSettings.stereoProviderPluginID) {
                 case OPENVR -> dh.vr = new MCOpenVR(instance, dh);
                 case OPENXR -> dh.vr = new MCOpenXR(instance, dh);
@@ -120,14 +107,9 @@ public class VRState {
             } catch (Throwable e) {
                 e.printStackTrace();
             }
-        } catch (RenderConfigException renderConfigException) {
-            vrEnabled = false;
-            destroyVR(true);
-            renderConfigException.printStackTrace();
-            Minecraft.getInstance().setScreen(new ErrorScreen(renderConfigException.title, renderConfigException.error));
         } catch (Throwable e) {
-            vrEnabled = false;
-            destroyVR(true);
+            //vrEnabled = false;
+            destroyVR(false);
             e.printStackTrace();
             MutableComponent component = Component.literal(e.getClass().getName() + (e.getMessage() == null ? "" : ": " + e.getMessage()));
             for (StackTraceElement element : e.getStackTrace()) {

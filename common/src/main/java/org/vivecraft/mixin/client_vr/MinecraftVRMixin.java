@@ -289,8 +289,8 @@ public abstract class MinecraftVRMixin implements MinecraftExtension {
         if (VRState.vrEnabled) {
             VRState.initializeVR();
         } else if (VRState.vrInitialized) {
-            vivecraft$switchVRState(false);
-            VRState.destroyVR(true);
+            vivecraft$switchVRState(true);
+            //VRState.destroyVR(false);
         }
         if (!VRState.vrInitialized) {
             return;
@@ -358,8 +358,8 @@ public abstract class MinecraftVRMixin implements MinecraftExtension {
                 ClientDataHolderVR.getInstance().vrRenderer.setupRenderConfiguration(true);
                 this.vivecraft$checkGLError("post render setup ");
             } catch (RenderConfigException renderConfigException) {
-                vivecraft$switchVRState(false);
-                VRState.destroyVR(true);
+                vivecraft$switchVRState(true);
+                //VRState.destroyVR(false);
                 Minecraft.getInstance().setScreen(new ErrorScreen("VR Render Error", renderConfigException.error));
                 this.profiler.pop();
                 return renderLevel;

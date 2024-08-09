@@ -43,7 +43,7 @@ public abstract class TitleScreenMixin extends Screen {
     private void vivecraft$addVRModeButton() {
 
         vivecraft$vrModeButton = new Button.Builder(Component.translatable("vivecraft.gui.vr", VRState.vrEnabled ? CommonComponents.OPTION_ON : CommonComponents.OPTION_OFF), (button) -> {
-            VRState.vrEnabled = !VRState.vrEnabled;
+            VRState.vrEnabled = true;
             ClientDataHolderVR.getInstance().vrSettings.vrEnabled = VRState.vrEnabled;
             ClientDataHolderVR.getInstance().vrSettings.saveOptions();
 

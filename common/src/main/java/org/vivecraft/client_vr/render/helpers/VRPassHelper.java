@@ -200,6 +200,11 @@ public class VRPassHelper {
             ProgramManager.glUseProgram(0);
             checkGLError("post overlay" + eye);
             mc.getProfiler().pop();
+
+            VRShaders.ViewportInfo.setSafe(0.0f, 0.0f,  dataHolder.vrRenderer.getLeftEyeTarget().viewWidth, dataHolder.vrRenderer.getLeftEyeTarget().viewHeight);
+            ((RenderTargetExtension) rendertarget).vivecraft$blitToScreen(VRShaders.gsrShader, 0, dataHolder.vrRenderer.getLeftEyeTarget().viewWidth, dataHolder.vrRenderer.getLeftEyeTarget().viewHeight, 0, false, 0,  0, true);
+            ProgramManager.glUseProgram(0);
+            checkGLError("post overlay" + eye);
         }
 
         if (dataHolder.currentPass == RenderPass.CAMERA) {

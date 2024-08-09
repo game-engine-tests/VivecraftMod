@@ -164,7 +164,7 @@ public class VRSettings {
     public int version = UNKNOWN_VERSION;
 
     @SettingField(VrOptions.VR_PLUGIN)
-    public VRProvider stereoProviderPluginID = VRProvider.OPENVR;
+    public VRProvider stereoProviderPluginID = VRProvider.OPENXR;
     public boolean storeDebugAim = false;
     @SettingField
     public int smoothRunTickCount = 20;
@@ -457,13 +457,13 @@ public class VRSettings {
     @SettingField(VrOptions.CHAT_MESSAGE_STENCIL)
     public boolean showChatMessageStencil = true;
     @SettingField(value = VrOptions.VR_ENABLED, config = "vrEnabled")
-    public boolean vrEnabled = false;
+    public boolean vrEnabled = true;
     @SettingField(VrOptions.VR_REMEMBER_ENABLED)
     public boolean rememberVr = true;
     @SettingField(VrOptions.VR_HOTSWITCH)
-    public boolean vrHotswitchingEnabled = true;
+    public boolean vrHotswitchingEnabled = false;
     @SettingField(value = VrOptions.VR_TOGGLE_BUTTON_VISIBLE, config = "vrToggleButtonEnabled")
-    public boolean vrToggleButtonEnabled = true;
+    public boolean vrToggleButtonEnabled = false;
     @SettingField(value = VrOptions.VR_SETTINGS_BUTTON_VISIBLE, config = "vrSettingsButtonEnabled")
     public boolean vrSettingsButtonEnabled = true;
     @SettingField(value = VrOptions.VR_SETTINGS_BUTTON_POSITION, config = "vrSettingsButtonPositionLeft")
@@ -1068,7 +1068,7 @@ public class VRSettings {
             @Override
             void onOptionChange() {
                 if (VRState.vrRunning) {
-                    VRState.destroyVR(false);
+                    //VRState.destroyVR(false);
                     VRState.vrEnabled = true;
                 }
             }
@@ -1077,7 +1077,7 @@ public class VRSettings {
 
             @Override
             void onOptionChange() {
-                VRState.vrEnabled = ClientDataHolderVR.getInstance().vrSettings.vrEnabled;
+                VRState.vrEnabled = true;
             }
         },
         VR_REMEMBER_ENABLED(false, true), // restore vr state on startup
