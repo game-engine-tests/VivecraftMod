@@ -11,6 +11,5 @@ public class Vivecraft {
     public Vivecraft() {
         // init server config
         ServerConfig.init(null);
-        Window
     }
 }

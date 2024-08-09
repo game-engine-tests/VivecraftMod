@@ -17,6 +17,7 @@ public class ErrorScreen extends Screen {
         super(Component.literal(title));
         lastScreen = Minecraft.getInstance().screen;
         this.error = error;
+        (new Throwable()).printStackTrace();
     }
 
     protected void init() {
