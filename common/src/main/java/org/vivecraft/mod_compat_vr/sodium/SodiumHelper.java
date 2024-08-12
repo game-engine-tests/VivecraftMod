@@ -1,6 +1,5 @@
 package org.vivecraft.mod_compat_vr.sodium;
 
-import me.jellysquid.mods.sodium.client.render.immediate.model.ModelCuboid;
 import me.jellysquid.mods.sodium.client.render.texture.SpriteUtil;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -8,6 +7,7 @@ import org.vivecraft.client.Xplat;
 import org.vivecraft.client_vr.settings.VRSettings;
 
 import java.lang.reflect.Field;
+import java.util.List;
 
 public class SodiumHelper {
 
@@ -39,11 +39,11 @@ public class SodiumHelper {
     private static Field sodium$cuboids;
 
     public static void copyModelCuboidUV(ModelPart source, ModelPart dest, int sourcePoly, int destPoly) {
-        if (!checkedForModelCuboid) {
+        /*if (!checkedForModelCuboid) {
             checkedForModelCuboid = true;
             try {
-                Class.forName("me.jellysquid.mods.sodium.client.render.immediate.model.ModelCuboid");
-                sodium$cuboids = ModelPart.class.getDeclaredField("sodium$cuboids");
+                Class.forName("net.minecraft.client.model.geom.ModelPart$Cube");
+                sodium$cuboids = ModelPart.class.getDeclaredField("cubes");
                 sodium$cuboids.setAccessible(true);
                 hasModelCuboid = true;
             } catch (ClassNotFoundException ignored) {
@@ -55,8 +55,8 @@ public class SodiumHelper {
         }
         if (hasModelCuboid) {
             try {
-                ModelCuboid.Quad sourceQuad = ((ModelCuboid[]) sodium$cuboids.get(source))[0].quads[sourcePoly];
-                ModelCuboid.Quad destQuad = ((ModelCuboid[]) sodium$cuboids.get(dest))[0].quads[destPoly];
+                ModelPart.Polygon sourceQuad = ((List<ModelPart.Cube>) sodium$cuboids.get(source)).get(0).polygons[sourcePoly];
+                ModelPart.Polygon destQuad = ((List<ModelPart.Cube>) sodium$cuboids.get(dest)).get(0).polygons[destPoly];
 
                 for (int i = 0; i < sourceQuad.textures.length; i++) {
                     destQuad.textures[i].x = sourceQuad.textures[i].x;
@@ -66,6 +66,6 @@ public class SodiumHelper {
                 VRSettings.logger.error("sodium version has ModelCuboids, but field has wrong type. VR hands will probably look wrong");
                 hasModelCuboid = false;
             }
-        }
+        }*/
     }
 }
