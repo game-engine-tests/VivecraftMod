@@ -732,8 +732,8 @@ public class MCOpenVR extends MCVR {
                             if (l == 0L) {
                                 flag = true;
                             } else {
-                                var renderModelComponentState = RenderModelComponentState.calloc(stack);
-                                boolean b0 = VRRenderModels_GetComponentStateForDevicePath(renderModelName, componentName, l, RenderModelControllerModeState.calloc(stack), renderModelComponentState);
+                                var renderModelComponentState = RenderModelComponentState.callocStack(stack);
+                                boolean b0 = VRRenderModels_GetComponentStateForDevicePath(renderModelName, componentName, l, RenderModelControllerModeState.callocStack(stack), renderModelComponentState);
 
                                 if (!b0) {
                                     flag = true;
@@ -798,7 +798,7 @@ public class MCOpenVR extends MCVR {
         }
 
         VRSettings.logger.info("OpenVR System Initialized OK.");
-        this.hmdTrackedDevicePoses = TrackedDevicePose.calloc(64);
+        this.hmdTrackedDevicePoses = TrackedDevicePose.callocStack(64);
         this.poseMatrices = new Matrix4f[64];
 
         for (int i = 0; i < this.poseMatrices.length; ++i) {
@@ -1171,7 +1171,7 @@ public class MCOpenVR extends MCVR {
             }
 
             try (MemoryStack stack = MemoryStack.stackPush()) {
-                var hmdmatrix34 = HmdMatrix34.calloc(stack);
+                var hmdmatrix34 = HmdMatrix34.callocStack(stack);
                 OpenVRUtil.convertSteamVRMatrix3ToMatrix4f(VRSystem_GetEyeToHeadTransform(0, hmdmatrix34), this.hmdPoseLeftEye);
                 OpenVRUtil.convertSteamVRMatrix3ToMatrix4f(VRSystem_GetEyeToHeadTransform(1, hmdmatrix34), this.hmdPoseRightEye);
             }
