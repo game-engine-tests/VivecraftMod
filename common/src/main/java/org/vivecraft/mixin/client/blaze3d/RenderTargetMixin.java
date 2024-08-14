@@ -179,42 +179,70 @@ public abstract class RenderTargetMixin implements RenderTargetExtension {
             RenderSystem.disableBlend();
         }
 
+        Minecraft minecraft = Minecraft.getInstance();
+
         float drawAspect = (float) width / (float) height;
-        float bufferAspect = (float) this.viewWidth / (float) this.viewHeight;
 
         float xMin = xCropFactor;
         float yMin = yCropFactor;
         float xMax = 1.0F - xCropFactor;
         float yMax = 1.0F - yCropFactor;
 
+        float f = (float) width / (float) height;
+        float f1 = (float) this.viewWidth / (float) this.viewHeight;
+        float f2 = (float) width;
+        float f3 = (float) height;
+        float f4 = 0.0F;
+        float f5 = 0.0F;
 
         if (keepAspect) {
-            if (drawAspect > bufferAspect) {
-                // destination is wider than the buffer
-                float heightAspect = ((float) height / (float) width) * (0.5F - yCropFactor);
-
-                yMin = 0.5F - heightAspect;
-                yMax = 0.5F + heightAspect;
+            if (f > f1) {
+                float f6 = (float) width / (float) this.viewWidth;
+                f4 = 0.0F;
+                f2 = (float) width;
+                f5 = (float) height / 2.0F - (float) this.viewHeight / 2.0F * f6;
+                f3 = (float) height / 2.0F + (float) this.viewHeight / 2.0F * f6;
             } else {
-                // destination is taller than the buffer
-                float widthAspect = drawAspect * (0.5F - xCropFactor);
+                float f10 = (float) height / (float) this.viewHeight;
+                f4 = (float) width / 2.0F - (float) this.viewWidth / 2.0F * f10;
+                f2 = (float) width / 2.0F + (float) this.viewWidth / 2.0F * f10;
+                f5 = 0.0F;
+                f3 = (float) height;
+            }
 
-                xMin = 0.5F - widthAspect;
-                xMax = 0.5F + widthAspect;
+            float widthAspect = drawAspect * (0.5F - xCropFactor);
+            xMin = 0.5F - widthAspect;
+            xMax = 0.5F + widthAspect;
+        }
+
+        ShaderInstance instance = VRShaders.blitAspectShader;
+
+        if (instance == null) {
+            instance = minecraft.gameRenderer.blitShader;
+            instance.setSampler("DiffuseSampler", this.colorTextureId);
+        } else {
+            for (int k = 0; k < RenderSystemAccessor.getShaderTextures().length; ++k) {
+                int l = RenderSystem.getShaderTexture(k);
+                instance.setSampler("Sampler" + k, l);
             }
         }
 
+        Matrix4f matrix4f = new Matrix4f().setOrtho(0, (float) width, (float) (height), 0, 1000.0F, 3000.0F);
+        RenderSystem.setProjectionMatrix(matrix4f, VertexSorting.ORTHOGRAPHIC_Z);
 
-        ShaderInstance instance = VRShaders.blitAspectShader;
-        instance.setSampler("DiffuseSampler", this.colorTextureId);
+        if (instance.MODEL_VIEW_MATRIX != null) {
+            instance.MODEL_VIEW_MATRIX.set(new Matrix4f().translation(0.0F, 0.0F, -2000.0F));
+        }
 
-        instance.apply();
+        if (instance.PROJECTION_MATRIX != null) {
+            instance.PROJECTION_MATRIX.set(matrix4f);
+        }
 
         BufferBuilder bufferbuilder = RenderSystem.renderThreadTesselator().begin(VertexFormat.Mode.QUADS, instance.getVertexFormat());
-        bufferbuilder.addVertex(0.0F, 0.0F, 0.0F).setUv(xMin, yMin);
-        bufferbuilder.addVertex(1.0F, 0.0F, 0.0F).setUv(xMax, yMin);
-        bufferbuilder.addVertex(1.0F, 1.0F, 0.0F).setUv(xMax, yMax);
-        bufferbuilder.addVertex(0.0F, 1.0F, 0.0F).setUv(xMin, yMax);
+        bufferbuilder.addVertex(f4, f3, 0.0f).setColor(255, 255, 255, 255).setUv(xMin, yMin);
+        bufferbuilder.addVertex(f2, f3, 0.0f).setColor(255, 255, 255, 255).setUv(xMax, yMin);
+        bufferbuilder.addVertex(f2, f5, 0.0f).setColor(255, 255, 255, 255).setUv(xMax, yMax);
+        bufferbuilder.addVertex(f4, f5, 0.0f).setColor(255, 255, 255, 255).setUv(xMin, yMax);
         BufferUploader.draw(bufferbuilder.buildOrThrow());
         instance.clear();
 
