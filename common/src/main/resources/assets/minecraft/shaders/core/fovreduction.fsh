@@ -2,7 +2,7 @@
 
 uniform sampler2D Sampler0;
 uniform float circle_radius;
-uniform float circle_offset = 0.1;
+uniform float circle_offset;
 uniform float border;
 
 uniform float water;
@@ -22,10 +22,9 @@ const vec4 black = vec4(0, 0, 0, 1.0);
 const vec4 orange = vec4(.25, .125, 0, 1.0);
 const float pi = 3.14159265;
 
-uniform int eye = 0;
+uniform int eye;
 
 void main(){
-
     vec4 bkg_color = texture(Sampler0, texCoordinates.st);
 
     if (portal > 0){ //swirly whirly

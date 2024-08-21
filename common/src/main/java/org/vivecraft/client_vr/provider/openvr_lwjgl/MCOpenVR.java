@@ -11,7 +11,6 @@ import net.minecraft.client.resources.language.ClientLanguage;
 import net.minecraft.client.resources.language.LanguageInfo;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.phys.Vec3;
 import org.lwjgl.openvr.*;
 import org.lwjgl.system.MemoryStack;
@@ -28,8 +27,8 @@ import org.vivecraft.client_vr.provider.openvr_lwjgl.control.VRInputActionSet;
 import org.vivecraft.client_vr.render.RenderConfigException;
 import org.vivecraft.client_vr.settings.VRHotkeys;
 import org.vivecraft.client_vr.settings.VRSettings;
-import org.vivecraft.client_vr.utils.external.jinfinadeck;
-import org.vivecraft.client_vr.utils.external.jkatvr;
+import org.vivecraft.client_vr.util.external.jinfinadeck;
+import org.vivecraft.client_vr.util.external.jkatvr;
 import org.vivecraft.common.utils.math.Matrix4f;
 import org.vivecraft.common.utils.math.Vector3;
 
@@ -476,6 +475,9 @@ public class MCOpenVR extends MCVR {
             if (!langCode.equals("en_US")) {
                 langs.add(mc.getLanguageManager().getLanguage(langCode.toLowerCase()));
             }
+
+            langs = langs.stream().filter(Objects::nonNull).toList();
+
             Language lang = ClientLanguage.loadFrom(mc.getResourceManager(), langs);
 
             for (VRInputAction action : sortedActions) {

@@ -257,13 +257,13 @@ public class MenuWorldRenderer {
                     for (RenderType layer : layers) {
                         futures.add(CompletableFuture.supplyAsync(() -> buildGeometryLayer(layer), Util.backgroundExecutor()));
                     }
-                    for (Future<Pair<RenderType, BufferBuilder>> future : futures) {
-                        try {
-                            Pair<RenderType, BufferBuilder> pair = future.get();
+                    for (CompletableFuture<Pair<RenderType, BufferBuilder>> future : futures) {
+                        //try {
+                            Pair<RenderType, BufferBuilder> pair = future.join();
                             uploadGeometry(pair.getLeft(), pair.getRight());
-                        } catch (ExecutionException | InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
+                        //} catch (ExecutionException | InterruptedException e) {
+                            //throw new RuntimeException(e);
+                        //}
                     }
                 } else {
                     // generate the data in series
@@ -320,11 +320,11 @@ public class MenuWorldRenderer {
                             c++;
                         }
                         if (state.getRenderShape() != RenderShape.INVISIBLE && ItemBlockRenderTypes.getChunkRenderType(state) == layer) {
-                            for (var quad : mc.getModelManager().getBlockModelShaper().getBlockModel(state).getQuads(state, null, randomSource)) {
-                                if (quad.getSprite().getUniqueFrames().sum() > 1) {
-                                    animatedSprites.add(quad.getSprite());
-                                }
-                            }
+                            //for (var quad : mc.getModelManager().getBlockModelShaper().getBlockModel(state).getQuads(state, null, randomSource)) {
+                            //    if (quad.getSprite().getUniqueFrames().sum() > 1) {
+                            //        animatedSprites.add(quad.getSprite());
+                            //    }
+                            //}
                             thisPose.pushPose();
                             thisPose.translate(pos.getX(), pos.getY(), pos.getZ());
                             blockRenderer.renderBatched(state, pos, blockAccess, thisPose, vertBuffer, true, randomSource);

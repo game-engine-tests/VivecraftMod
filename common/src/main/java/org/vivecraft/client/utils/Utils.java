@@ -23,7 +23,7 @@ import org.apache.logging.log4j.LogManager;
 import org.lwjgl.openvr.HmdMatrix44;
 import org.vivecraft.client.Xplat;
 import org.vivecraft.client_vr.render.VRShaders;
-import org.vivecraft.client_vr.utils.LoaderUtils;
+import org.vivecraft.client_vr.util.LoaderUtils;
 import org.vivecraft.common.utils.lwjgl.*;
 import org.vivecraft.common.utils.math.Quaternion;
 import org.vivecraft.common.utils.math.Vector2;

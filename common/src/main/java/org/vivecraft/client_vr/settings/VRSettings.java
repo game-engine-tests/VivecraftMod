@@ -435,11 +435,11 @@ public class VRSettings {
     @SettingField(VrOptions.CHAT_MESSAGE_STENCIL)
     public boolean showChatMessageStencil = true;
     @SettingField
-    public boolean vrEnabled = false;
+    public boolean vrEnabled = true;
     @SettingField(VrOptions.VR_HOTSWITCH)
-    public boolean vrHotswitchingEnabled = true;
+    public boolean vrHotswitchingEnabled = false;
     @SettingField
-    public boolean vrToggleButtonEnabled = true;
+    public boolean vrToggleButtonEnabled = false;
     @SettingField
     public boolean vrSettingsButtonEnabled = true;
     @SettingField

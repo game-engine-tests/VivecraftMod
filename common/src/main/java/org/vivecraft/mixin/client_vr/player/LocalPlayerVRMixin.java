@@ -41,8 +41,8 @@ import org.vivecraft.client_vr.extensions.PlayerExtension;
 import org.vivecraft.client_vr.gameplay.VRPlayer;
 import org.vivecraft.client_vr.render.VRFirstPersonArmSwing;
 import org.vivecraft.client_vr.settings.VRSettings;
-import org.vivecraft.client_vr.utils.external.jinfinadeck;
-import org.vivecraft.client_vr.utils.external.jkatvr;
+import org.vivecraft.client_vr.util.external.jinfinadeck;
+import org.vivecraft.client_vr.util.external.jkatvr;
 import org.vivecraft.common.network.CommonNetworkHelper;
 
 @Mixin(LocalPlayer.class)
