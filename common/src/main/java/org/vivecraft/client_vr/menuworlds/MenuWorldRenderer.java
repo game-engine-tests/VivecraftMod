@@ -2,7 +2,6 @@ package org.vivecraft.client_vr.menuworlds;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.blaze3d.shaders.FogShape;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Matrix4f;
@@ -17,10 +16,9 @@ import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.tags.TagKey;
+import net.minecraft.tags.Tag;
 import net.minecraft.util.CubicSampler;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.BlockAndTintGetter;
@@ -47,8 +45,6 @@ import org.vivecraft.mod_compat_vr.sodium.SodiumHelper;
 import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 public class MenuWorldRenderer {
     private static final ResourceLocation MOON_LOCATION = new ResourceLocation("textures/environment/moon_phases.png");
@@ -302,7 +298,7 @@ public class MenuWorldRenderer {
                 }
                 for (int z = -blockAccess.getZSize() / 2; z < blockAccess.getZSize() / 2; z++) {
                     // don't build unnecessary blocks in fog
-                    if (Mth.lengthSquared(x, z) > renderDistSquare) {
+                    if (((x * x) * (z * z)) > renderDistSquare) {
                         continue;
                     }
 
@@ -316,7 +312,7 @@ public class MenuWorldRenderer {
                                     animatedSprites.add(sprite);
                                 }
                             }
-                            blockRenderer.renderLiquid(pos, blockAccess, vertBuffer, state, new FluidStateWrapper(fluidState));
+                            blockRenderer.renderLiquid(pos, blockAccess, vertBuffer, new FluidStateWrapper(fluidState));
                             c++;
                         }
                         if (state.getRenderShape() != RenderShape.INVISIBLE && ItemBlockRenderTypes.getChunkRenderType(state) == layer) {
@@ -873,7 +869,7 @@ public class MenuWorldRenderer {
                 double r = (double) this.rainSizeX[q] * 0.5;
                 double s = (double) this.rainSizeZ[q] * 0.5;
                 mutableBlockPos.set(rainX, inY, rainZ);
-                Biome biome = blockAccess.getBiome(mutableBlockPos).value();
+                Biome biome = blockAccess.getBiome(mutableBlockPos);
                 if (biome.getPrecipitation() == Biome.Precipitation.NONE) {
                     continue;
                 }
@@ -903,7 +899,7 @@ public class MenuWorldRenderer {
                 int skyLight = blockAccess.getBrightness(LightLayer.SKY, mutableBlockPos) << 4;
                 int blockLight = blockAccess.getBrightness(LightLayer.BLOCK, mutableBlockPos) << 4;
 
-                if (biome.warmEnoughToRain(mutableBlockPos)) {
+                if (!biome.isHumid()) {
                     if (count != 0) {
                         if (count >= 0) {
                             tesselator.end();
@@ -1013,7 +1009,7 @@ public class MenuWorldRenderer {
 
         Vec3 samplePosition = position.subtract(2.0, 2.0, 2.0).scale(0.25);
 
-        Vec3 skyColor = CubicSampler.gaussianSampleVec3(samplePosition, (i, j, k) -> Vec3.fromRGB24(blockAccess.getBiomeManager().getNoiseBiomeAtQuart(i, j, k).value().getSkyColor()));
+        Vec3 skyColor = CubicSampler.gaussianSampleVec3(samplePosition, (i, j, k) -> Vec3.fromRGB24(blockAccess.getBiomeManager().getNoiseBiomeAtQuart(i, j, k).getSkyColor()));
 
         float h = Mth.cos(dayTime * ((float) Math.PI * 2)) * 2.0f + 0.5f;
         h = Mth.clamp(h, 0.0f, 1.0f);
@@ -1037,7 +1033,7 @@ public class MenuWorldRenderer {
             skyColorG = skyColorG * darkening + luminance * (1.0f - darkening);
             skyColorB = skyColorB * darkening + luminance * (1.0f - darkening);
         }
-        if (!mc.options.hideLightningFlashes && this.skyFlashTime > 0) {
+        if (this.skyFlashTime > 0) {
             float flash = (float) this.skyFlashTime - mc.getFrameTime();
             if (flash > 1.0f) {
                 flash = 1.0f;
@@ -1052,7 +1048,7 @@ public class MenuWorldRenderer {
     public Vec3 getFogColor(Vec3 pos) {
         float f = Mth.clamp(Mth.cos(this.getTimeOfDay() * ((float) Math.PI * 2F)) * 2.0F + 0.5F, 0.0F, 1.0F);
         Vec3 scaledPos = pos.subtract(2.0D, 2.0D, 2.0D).scale(0.25D);
-        return CubicSampler.gaussianSampleVec3(scaledPos, (x, y, z) -> this.dimensionInfo.getBrightnessDependentFogColor(Vec3.fromRGB24(this.blockAccess.getBiomeManager().getNoiseBiomeAtQuart(x, y, z).value().getFogColor()), f));
+        return CubicSampler.gaussianSampleVec3(scaledPos, (x, y, z) -> this.dimensionInfo.getBrightnessDependentFogColor(Vec3.fromRGB24(this.blockAccess.getBiomeManager().getNoiseBiomeAtQuart(x, y, z).getFogColor()), f));
     }
 
     public Vec3 getCloudColour() {
@@ -1321,7 +1317,7 @@ public class MenuWorldRenderer {
         }
     }
 
-    public boolean areEyesInFluid(TagKey<Fluid> tagIn) {
+    public boolean areEyesInFluid(Tag.Named<Fluid> tagIn) {
         if (blockAccess == null) {
             return false;
         }
@@ -1329,14 +1325,14 @@ public class MenuWorldRenderer {
         Vec3 pos = getEyePos();
         BlockPos blockpos = new BlockPos(pos);
         FluidState fluidstate = this.blockAccess.getFluidState(blockpos);
-        return isFluidTagged(fluidstate, tagIn) && pos.y < (double) ((float) blockpos.getY() + fluidstate.getAmount() + 0.11111111F);
+        return isFluidTagged(fluidstate.getType(), tagIn) && pos.y < (double) ((float) blockpos.getY() + fluidstate.getAmount() + 0.11111111F);
     }
 
     public Vec3 getEyePos() {
         return ClientDataHolderVR.getInstance().vrPlayer.vrdata_room_post.hmd.getPosition();
     }
 
-    private boolean isFluidTagged(Fluid fluid, TagKey<Fluid> tag) {
+    private boolean isFluidTagged(Fluid fluid, Tag.Named<Fluid> tag) {
         // Apparently fluid tags are server side, so we have to hard-code this shit.
         // Thanks Mojang.
         if (tag == FluidTags.WATER) {
@@ -1347,7 +1343,7 @@ public class MenuWorldRenderer {
         return false;
     }
 
-    private boolean isFluidTagged(FluidState fluidState, TagKey<Fluid> tag) {
+    private boolean isFluidTagged(FluidState fluidState, Tag.Named<Fluid> tag) {
         return isFluidTagged(fluidState.getType(), tag);
     }
 
@@ -1523,7 +1519,7 @@ public class MenuWorldRenderer {
 
         private void updateWaterFog(LevelReader levelIn) {
             long currentTime = Util.getMillis();
-            int waterFogColor = levelIn.getBiome(new BlockPos(this.menuWorldRenderer.getEyePos())).value().getWaterFogColor();
+            int waterFogColor = levelIn.getBiome(new BlockPos(this.menuWorldRenderer.getEyePos())).getWaterFogColor();
 
             if (this.biomeChangedTime < 0L) {
                 targetBiomeFog = waterFogColor;
@@ -1557,7 +1553,6 @@ public class MenuWorldRenderer {
             FogType fogType = getEyeFogType();
 
             float fogStart, fogEnd;
-            FogShape fogShape = FogShape.SPHERE;
 
             if (fogType == FogType.LAVA) {
                 fogStart = 0.25f;
@@ -1569,13 +1564,12 @@ public class MenuWorldRenderer {
                 fogStart = -8.0f;
                 fogEnd = 96.0f;
 
-                Holder<Biome> holder = menuWorldRenderer.blockAccess.getBiome(new BlockPos(menuWorldRenderer.getEyePos()));
-                if (Biome.getBiomeCategory(holder) == Biome.BiomeCategory.SWAMP) {
+                Biome holder = menuWorldRenderer.blockAccess.getBiome(new BlockPos(menuWorldRenderer.getEyePos()));
+                if (holder.getBiomeCategory() == Biome.BiomeCategory.SWAMP) {
                     fogEnd *= 0.85f;
                 }
                 if (fogEnd > menuWorldRenderer.renderDistance) {
                     fogEnd = menuWorldRenderer.renderDistance;
-                    fogShape = FogShape.CYLINDER;
                 }
             } else if (menuWorldRenderer.blockAccess.getDimensionReaderInfo().isFoggyAt(0, 0)) {
                 fogStart = menuWorldRenderer.renderDistance * 0.05f;
@@ -1583,16 +1577,13 @@ public class MenuWorldRenderer {
             } else if (fogMode == FogRenderer.FogMode.FOG_SKY) {
                 fogStart = 0.0f;
                 fogEnd = menuWorldRenderer.renderDistance;
-                fogShape = FogShape.CYLINDER;
             } else {
                 float h = Mth.clamp(menuWorldRenderer.renderDistance / 10.0f, 4.0f, 64.0f);
                 fogStart = menuWorldRenderer.renderDistance - h;
                 fogEnd = menuWorldRenderer.renderDistance;
-                fogShape = FogShape.CYLINDER;
             }
             RenderSystem.setShaderFogStart(fogStart);
             RenderSystem.setShaderFogEnd(fogEnd);
-            RenderSystem.setShaderFogShape(fogShape);
         }
 
         private FogType getEyeFogType() {
@@ -1627,7 +1618,7 @@ public class MenuWorldRenderer {
         }
 
         @Override
-        public boolean is(TagKey<Fluid> tagIn) {
+        public boolean is(Tag<Fluid> tagIn) {
             // Yeah I know this is super dirty, blame Mojang for making FluidTags server-side
             if (tagIn == FluidTags.WATER) {
                 return this.getType() == Fluids.WATER || this.getType() == Fluids.FLOWING_WATER;
@@ -1636,5 +1627,7 @@ public class MenuWorldRenderer {
             }
             return fluidState.is(tagIn);
         }
+
+
     }
 }

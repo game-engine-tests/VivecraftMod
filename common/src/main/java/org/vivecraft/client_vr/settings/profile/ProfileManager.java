@@ -37,7 +37,7 @@ public class ProfileManager {
             InputStreamReader inputstreamreader = new InputStreamReader(new FileInputStream(vrProfileCfgFile), StandardCharsets.UTF_8);
 
             try {
-                jsonConfigRoot = JsonParser.parseReader(inputstreamreader).getAsJsonObject();
+                jsonConfigRoot = new JsonParser().parse(inputstreamreader).getAsJsonObject();
             } catch (Exception exception) {
                 jsonConfigRoot = new JsonObject();
             }
@@ -314,7 +314,7 @@ public class ProfileManager {
             error.append("Profile '" + newProfileName + "' already exists.");
             return false;
         } else {
-            JsonObject JsonObject = profiles.get(existingProfileName).getAsJsonObject().deepCopy();
+            JsonObject JsonObject = deepCopy(profiles.get(existingProfileName).getAsJsonObject());
             profiles.remove(existingProfileName);
             profiles.add(newProfileName, JsonObject);
 
@@ -334,10 +334,44 @@ public class ProfileManager {
             error.append("Profile '" + duplicateProfileName + "' already exists.");
             return false;
         } else {
-            JsonObject JsonObject = profiles.get(profileName).getAsJsonObject().deepCopy();
+            JsonObject JsonObject = deepCopy(profiles.get(profileName).getAsJsonObject());
             profiles.add(duplicateProfileName, JsonObject);
             return true;
         }
+    }
+
+    private static JsonObject deepCopy(JsonObject jsonObject) {
+        JsonObject result = new JsonObject();
+        for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
+            result.add(entry.getKey(), deepCopy(entry.getValue()));
+        }
+        return result;
+    }
+
+    private static JsonArray deepCopy(JsonArray jsonArray) {
+        List<JsonElement> elements = new ArrayList<>();
+        for (JsonElement element : jsonArray) {
+            elements.add(element);
+        }
+        if (!elements.isEmpty()) {
+            JsonArray result = new JsonArray(elements.size());
+            for (JsonElement element : elements) {
+                result.add(deepCopy(element));
+            }
+            return result;
+        }
+        return new JsonArray();
+    }
+
+    private static JsonElement deepCopy(JsonElement jsonElement) {
+        if (jsonElement.isJsonObject()) {
+            return deepCopy(jsonElement.getAsJsonObject());
+        } else if (jsonElement.isJsonArray()) {
+            return deepCopy(jsonElement.getAsJsonArray());
+        } else if (jsonElement.isJsonNull() || jsonElement.isJsonPrimitive()) {
+            return jsonElement;
+        }
+        return null;
     }
 
     public static synchronized boolean deleteProfile(String profileName, StringBuilder error) {

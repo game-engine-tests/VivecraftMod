@@ -38,19 +38,16 @@ public class HMDLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<Abst
                 hmd = this.GOLD_HMD;
                 break;
 
-            case 3:
+            case 3, 4:
                 hmd = this.DIAMOND_HMD;
                 break;
-
-            case 4:
-                hmd = this.DIAMOND_HMD;
         }
         if (hmd == null) {
             return;
         }
         poseStack.pushPose();
         VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.entitySolid(hmd));
-        ((VRPlayerModel) this.getParentModel()).renderHMDR(poseStack, vertexConsumer, i, OverlayTexture.NO_OVERLAY);
+        ((VRPlayerModel<AbstractClientPlayer>) this.getParentModel()).renderHMDR(poseStack, vertexConsumer, i, OverlayTexture.NO_OVERLAY);
         poseStack.popPose();
     }
 }

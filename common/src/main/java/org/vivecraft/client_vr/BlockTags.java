@@ -1,17 +1,16 @@
 package org.vivecraft.client_vr;
 
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
+import net.minecraft.tags.Tag;
 import net.minecraft.world.level.block.Block;
+import org.vivecraft.client.Xplat;
 
 public class BlockTags {
-    public final static TagKey<Block> VIVECRAFT_CLIMBABLE = tag("climbable");
-    public final static TagKey<Block> VIVECRAFT_CROPS = tag("crops");
+    public final static Tag.Named<Block> VIVECRAFT_CLIMBABLE = tag("climbable");
+    public final static Tag.Named<Block> VIVECRAFT_CROPS = tag("crops");
 
-    public final static TagKey<Block> VIVECRAFT_MUSIC_BLOCKS = tag("music_blocks");
+    public final static Tag.Named<Block> VIVECRAFT_MUSIC_BLOCKS = tag("music_blocks");
 
-    private static TagKey<Block> tag(String name) {
-        return TagKey.create(Registry.BLOCK_REGISTRY, new ResourceLocation("vivecraft", name));
+    private static Tag.Named<Block> tag(String name) {
+        return Xplat.getBlockTag(name);
     }
 }

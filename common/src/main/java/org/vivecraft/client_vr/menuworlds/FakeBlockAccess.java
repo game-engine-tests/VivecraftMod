@@ -5,14 +5,13 @@ import net.minecraft.client.renderer.DimensionSpecialEffects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Cursor3D;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ColorResolver;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
+import net.minecraft.world.level.biome.FuzzyOffsetBiomeZoomer;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -29,6 +28,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public class FakeBlockAccess implements LevelReader {
     private final int version;
@@ -75,7 +76,7 @@ public class FakeBlockAccess implements LevelReader {
         this.rain = rain;
         this.thunder = thunder;
 
-        this.biomeManager = new BiomeManager(this, BiomeManager.obfuscateSeed(seed));
+        this.biomeManager = new BiomeManager(this, BiomeManager.obfuscateSeed(seed), FuzzyOffsetBiomeZoomer.INSTANCE);
         this.dimensionInfo = DimensionSpecialEffects.forType(dimensionType);
 
         // set the ground to the height of the center block
@@ -183,7 +184,7 @@ public class FakeBlockAccess implements LevelReader {
         int i = Minecraft.getInstance().options.biomeBlendRadius;
 
         if (i == 0) {
-            return colorResolverIn.getColor(this.getBiome(blockPosIn).value(), blockPosIn.getX(), blockPosIn.getZ());
+            return colorResolverIn.getColor(this.getBiome(blockPosIn), blockPosIn.getX(), blockPosIn.getZ());
         } else {
             int j = (i * 2 + 1) * (i * 2 + 1);
             int k = 0;
@@ -194,7 +195,7 @@ public class FakeBlockAccess implements LevelReader {
 
             for (BlockPos.MutableBlockPos blockpos$mutable = new BlockPos.MutableBlockPos(); cursor3D.advance(); i1 += j1 & 255) {
                 blockpos$mutable.set(cursor3D.nextX(), cursor3D.nextY(), cursor3D.nextZ());
-                j1 = colorResolverIn.getColor(this.getBiome(blockpos$mutable).value(), blockpos$mutable.getX(), blockpos$mutable.getZ());
+                j1 = colorResolverIn.getColor(this.getBiome(blockpos$mutable), blockpos$mutable.getX(), blockpos$mutable.getZ());
                 k += (j1 & 16711680) >> 16;
                 l += (j1 & 65280) >> 8;
             }
@@ -312,26 +313,13 @@ public class FakeBlockAccess implements LevelReader {
     }
 
     @Override
-    public List<VoxelShape> getEntityCollisions(@Nullable Entity entityIn, AABB aabb) {
-        return Collections.emptyList(); // nani
+    public Stream<VoxelShape> getEntityCollisions(@org.jetbrains.annotations.Nullable Entity entity, AABB aABB, Predicate<Entity> predicate) {
+        return Stream.empty();
     }
 
     @Override
     public boolean isEmptyBlock(BlockPos pos) {
         return this.getBlockState(pos).isAir();
-    }
-
-    @Override
-    public Holder<Biome> getNoiseBiome(int x, int y, int z) {
-        int xMoved = x + xSize / 8;
-        int yMoved = y + (int) effectiveGround / 4;
-        int zMoved = z + zSize / 8;
-        if (!checkCoords(x * 4, y * 4, z * 4)) {
-            xMoved = Mth.clamp(xMoved, 0, xSize / 4 - 1);
-            yMoved = Mth.clamp(yMoved, 0, (ySize - (int) effectiveGround) / 4 - 1);
-            zMoved = Mth.clamp(zMoved, 0, zSize / 4 - 1);
-        }
-        return Holder.direct(biomemap[(yMoved * (zSize / 4) + zMoved) * (xSize / 4) + xMoved]);
     }
 
     @Override
@@ -360,7 +348,7 @@ public class FakeBlockAccess implements LevelReader {
     }
 
     @Override
-    public Holder<Biome> getUncachedNoiseBiome(int x, int y, int z) {
+    public Biome getUncachedNoiseBiome(int x, int y, int z) {
         return null; // don't need this
     }
 }

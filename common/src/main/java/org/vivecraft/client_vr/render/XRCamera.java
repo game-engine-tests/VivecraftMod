@@ -6,6 +6,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.material.FogType;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.vivecraft.client_vr.ClientDataHolderVR;
 import org.vivecraft.client_vr.VRData;
 import org.vivecraft.client_vr.render.helpers.RenderHelper;
@@ -14,7 +15,7 @@ import org.vivecraft.client_xr.render_pass.RenderPassType;
 
 
 public class XRCamera extends Camera {
-    public void setup(BlockGetter pLevel, Entity pRenderViewEntity, boolean pThirdPerson, boolean pThirdPersonReverse, float pPartialTicks) {
+    public void setup(@NotNull BlockGetter pLevel, @NotNull Entity pRenderViewEntity, boolean pThirdPerson, boolean pThirdPersonReverse, float pPartialTicks) {
         if (RenderPassType.isVanilla()) {
             super.setup(pLevel, pRenderViewEntity, pThirdPerson, pThirdPersonReverse, pPartialTicks);
             return;
@@ -61,7 +62,7 @@ public class XRCamera extends Camera {
 
     // some mods call this, when querying the sunrise color in the menu world
     @Override
-    public FogType getFluidInCamera() {
+    public @NotNull FogType getFluidInCamera() {
         if (this.level == null) {
             return FogType.NONE;
         } else {

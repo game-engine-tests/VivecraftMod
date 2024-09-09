@@ -145,13 +145,13 @@ public abstract class LevelRendererVRMixin implements ResourceManagerReloadListe
      * Start `renderLevel` lighting poll
      */
 
-    // TODO maybe move to the ClientLevel
+    /*// TODO maybe move to the ClientLevel
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientLevel;pollLightUpdates()V"), method = "renderLevel")
     public void vivecraft$onePollLightUpdates(ClientLevel instance) {
         if (RenderPassType.isVanilla() || ClientDataHolderVR.getInstance().currentPass == RenderPass.LEFT) {
             instance.pollLightUpdates();
         }
-    }
+    }*/
 
     // TODO maybe move to the LevelLightEngine
     @Redirect(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/lighting/LevelLightEngine;runUpdates(IZZ)I"), method = "renderLevel")

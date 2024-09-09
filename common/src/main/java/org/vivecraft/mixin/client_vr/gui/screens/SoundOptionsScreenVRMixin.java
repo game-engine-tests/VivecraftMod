@@ -48,7 +48,7 @@ public class SoundOptionsScreenVRMixin extends Screen {
                 ClientDataHolderVR.getInstance().vrSettings.saveOptions();
 
                 SoundManager soundManager = Minecraft.getInstance().getSoundManager();
-                soundManager.reload();
+                soundManager.soundEngine.reload();
                 soundManager.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             });
 

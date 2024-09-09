@@ -14,13 +14,13 @@ import static com.mojang.blaze3d.systems.RenderSystem.blendFuncSeparate;
 public class RenderSystemVRMixin {
 
     // do remap because of forge
-    @Inject(at = @At("HEAD"), method = "defaultBlendFunc", cancellable = true)
+    @Inject(at = @At("HEAD"), method = "defaultBlendFunc", cancellable = true, remap = false)
     private static void vivecraft$defaultBlendFunc(CallbackInfo ci) {
         blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         ci.cancel();
     }
 
-    @Inject(at = @At("HEAD"), method = "limitDisplayFPS", cancellable = true)
+    @Inject(at = @At("HEAD"), method = "limitDisplayFPS", cancellable = true, remap = false)
     private static void vivecraft$noFPSlimit(CallbackInfo ci) {
         if (VRState.vrRunning) {
             ci.cancel();

@@ -4,11 +4,15 @@ import com.mojang.blaze3d.pipeline.RenderTarget;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
+import net.minecraft.tags.Tag;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSpecialEffects;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.FluidState;
 
+import javax.swing.text.html.HTML;
 import java.nio.file.Path;
 
 public interface Xplat {
@@ -82,6 +86,16 @@ public interface Xplat {
 
     @ExpectPlatform
     static BiomeSpecialEffects getBiomeEffects(Biome biome) {
+        return null;
+    }
+
+    @ExpectPlatform
+    static Tag.Named<Item> getItemTag(String name) {
+        return null;
+    }
+
+    @ExpectPlatform
+    static Tag.Named<Block> getBlockTag(String name) {
         return null;
     }
 }

@@ -1,6 +1,7 @@
 package org.vivecraft.client_vr.menuworlds;
 
 import com.google.common.io.Files;
+import com.mojang.bridge.game.PackType;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.SharedConstants;
@@ -68,7 +69,7 @@ public class MenuWorldExporter {
                     if (x % 4 == 0 && y % 4 == 0 && z % 4 == 0) {
                         int indexBiome = ((yl / 4) * (zSize / 4) + (zl / 4)) * (xSize / 4) + (xl / 4);
                         // getNoiseBiome expects pre-divided coordinates
-                        biomemap[indexBiome] = biomeMapper.getId(level.getNoiseBiome(x / 4, y / 4, z / 4).value());
+                        biomemap[indexBiome] = biomeMapper.getId(level.getNoiseBiome(x / 4, y / 4, z / 4));
                     }
                 }
             }
@@ -96,7 +97,7 @@ public class MenuWorldExporter {
             dos.writeLong(level.getBiomeManager().biomeZoomSeed); // not really correct :/
         }
 
-        dos.writeInt(SharedConstants.getCurrentVersion().getDataVersion().getVersion());
+        dos.writeInt(SharedConstants.getCurrentVersion().getPackVersion(PackType.DATA));
 
         dos.writeBoolean(level.dimensionType().fixedTime.isPresent());
         if (level.dimensionType().fixedTime.isPresent()) {
@@ -219,7 +220,7 @@ public class MenuWorldExporter {
             dataVersion = dis.readInt(); // v5+ stores the real data version
         }
 
-        if (dataVersion > SharedConstants.getCurrentVersion().getDataVersion().getVersion()) {
+        if (dataVersion > SharedConstants.getCurrentVersion().getPackVersion(PackType.DATA)) {
             VRSettings.logger.warn("Data version is newer than current, this menu world may not load correctly.");
         }
 
@@ -253,7 +254,26 @@ public class MenuWorldExporter {
             dimAmbientLight = dis.readFloat();
         }
 
-        DimensionType dimensionType = DimensionType.create(dimFixedTime, dimHasSkyLight, dimHasCeiling, false, false, 1.0, true, false, false, false, false, dimMinY, ySize, ySize, BlockTags.INFINIBURN_OVERWORLD, dimName, dimAmbientLight);
+        DimensionType dimensionType = DimensionType.create(
+            dimFixedTime,
+            dimHasSkyLight,
+            dimHasCeiling,
+            false,
+            false,
+            1.0,
+            true,
+            false,
+            false,
+            false,
+            false,
+            dimMinY,
+            ySize,
+            ySize,
+            FuzzyOffsetBiomeZoomer.INSTANCE,
+            BlockTags.INFINIBURN_OVERWORLD.getName(),
+            dimName,
+            dimAmbientLight
+        );
 
         float rotation = 0.0f;
         boolean rain = false;
@@ -366,7 +386,7 @@ public class MenuWorldExporter {
     }
 
     private static class BlockStateMapper {
-        CrudeIncrementalIntIdentityHashBiMap<BlockState> paletteMap = CrudeIncrementalIntIdentityHashBiMap.create(256);
+        CrudeIncrementalIntIdentityHashBiMap<BlockState> paletteMap = new CrudeIncrementalIntIdentityHashBiMap<>(256);
 
         private BlockStateMapper() {
         }
@@ -386,7 +406,7 @@ public class MenuWorldExporter {
 
             for (int i = 0; i < size; i++) {
                 CompoundTag tag = CompoundTag.TYPE.load(dis, 0, NbtAccounter.UNLIMITED);
-                tag = (CompoundTag) dataFixer.update(References.BLOCK_STATE, new Dynamic<>(NbtOps.INSTANCE, tag), dataVersion, SharedConstants.getCurrentVersion().getDataVersion().getVersion()).getValue();
+                tag = (CompoundTag) dataFixer.update(References.BLOCK_STATE, new Dynamic<>(NbtOps.INSTANCE, tag), dataVersion, SharedConstants.getCurrentVersion().getPackVersion(PackType.DATA)).getValue();
                 this.paletteMap.add(NbtUtils.readBlockState(tag));
             }
         }
@@ -411,7 +431,7 @@ public class MenuWorldExporter {
     private static final MobSpawnSettings dummyMobSpawnSettings = new MobSpawnSettings.Builder().build();
 
     private static class PaletteBiomeMapper implements BiomeMapper {
-        CrudeIncrementalIntIdentityHashBiMap<Biome> paletteMap = CrudeIncrementalIntIdentityHashBiMap.create(256);
+        CrudeIncrementalIntIdentityHashBiMap<Biome> paletteMap = new CrudeIncrementalIntIdentityHashBiMap<>(256);
 
         private PaletteBiomeMapper() {
         }

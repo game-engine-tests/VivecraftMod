@@ -12,7 +12,7 @@ public class VRTextureTarget extends RenderTarget {
     public VRTextureTarget(String name, int width, int height, boolean usedepth, boolean onMac, int texid, boolean depthtex, boolean linearFilter, boolean useStencil) {
         super(usedepth);
         this.name = name;
-        RenderSystem.assertOnGameThreadOrInit();
+        if (!RenderSystem.isOnGameThreadOrInit()) throw new RuntimeException("Not on game thread");
         ((RenderTargetExtension) this).vivecraft$setTextid(texid);
         ((RenderTargetExtension) this).vivecraft$isLinearFilter(linearFilter);
         ((RenderTargetExtension) this).vivecraft$setUseStencil(useStencil);

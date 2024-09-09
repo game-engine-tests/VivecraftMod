@@ -24,7 +24,7 @@ public class ScreenUtils {
 
     public static AbstractWidget getSelectedButton(Screen screen, int x, int y) {
         for (AbstractWidget butt : getButtonList(screen)) {
-            if (butt.visible && butt.isHoveredOrFocused()) {
+            if (butt.visible && (butt.isFocused() || butt.isHovered())) {
                 return butt;
             }
         }

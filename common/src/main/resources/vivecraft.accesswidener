@@ -105,3 +105,6 @@ extendable class net/minecraft/world/level/material/FluidState
 accessible field net/minecraft/world/level/block/state/StateHolder propertiesCodec Lcom/mojang/serialization/MapCodec;
 accessible field net/minecraft/world/level/dimension/DimensionType ambientLight F
 accessible field net/minecraft/world/level/dimension/DimensionType fixedTime Ljava/util/OptionalLong;
+
+# for sound engine
+accessible field net/minecraft/client/sounds/SoundManager soundEngine Lnet/minecraft/client/sounds/SoundEngine;

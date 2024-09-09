@@ -107,7 +107,7 @@ public abstract class RenderTargetMixin implements RenderTargetExtension {
     }
 
     public void vivecraft$blitToScreen(ShaderInstance instance, int left, int width, int height, int top, boolean disableBlend, float xCropFactor, float yCropFactor, boolean keepAspect) {
-        RenderSystem.assertOnGameThreadOrInit();
+        if (!RenderSystem.isOnGameThreadOrInit()) throw new RuntimeException("Not on game thread");
         if (!RenderSystem.isInInitPhase()) {
             RenderSystem.recordRenderCall(() -> {
                 this.vivecraft$_blitToScreen(instance, left, width, height, top, disableBlend, xCropFactor, yCropFactor, keepAspect);
@@ -119,7 +119,7 @@ public abstract class RenderTargetMixin implements RenderTargetExtension {
 
     @Override
     public void vivecraft$blitFovReduction(ShaderInstance instance, int width, int height) {
-        RenderSystem.assertOnRenderThread();
+        if (!RenderSystem.isOnRenderThread()) throw new RuntimeException("Not in render thread");
         RenderSystem.colorMask(true, true, true, false);
         RenderSystem.disableDepthTest();
         RenderSystem.depthMask(false);
@@ -174,7 +174,7 @@ public abstract class RenderTargetMixin implements RenderTargetExtension {
 
     @Unique
     private void vivecraft$_blitToScreen(ShaderInstance instance, int left, int width, int height, int top, boolean bl, float xCropFactor, float yCropFactor, boolean keepAspect) {
-        RenderSystem.assertOnGameThreadOrInit();
+        if (!RenderSystem.isOnGameThreadOrInit()) throw new RuntimeException("Not on game thread");
         RenderSystem.colorMask(true, true, true, false);
         RenderSystem.disableDepthTest();
         RenderSystem.depthMask(false);

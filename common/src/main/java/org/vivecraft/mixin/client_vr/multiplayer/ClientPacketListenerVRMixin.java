@@ -1,7 +1,6 @@
 package org.vivecraft.mixin.client_vr.multiplayer;
 
 import com.mojang.authlib.GameProfile;
-import net.minecraft.client.ClientTelemetryManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -39,7 +38,7 @@ public class ClientPacketListenerVRMixin {
     private Minecraft minecraft;
 
     @Inject(at = @At("TAIL"), method = "<init>")
-    public void vivecraft$init(Minecraft minecraft, Screen screen, Connection connection, GameProfile gameProfile, ClientTelemetryManager clientTelemetryManager, CallbackInfo ci) {
+    public void vivecraft$init(Minecraft minecraft, Screen screen, Connection connection, GameProfile gameProfile, CallbackInfo ci) {
         if (ClientNetworking.needsReset) {
             ClientDataHolderVR.getInstance().vrSettings.overrides.resetAll();
             ClientNetworking.resetServerSettings();

@@ -3,8 +3,8 @@ package org.vivecraft.client.utils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.mojang.logging.LogUtils;
 import net.minecraft.SharedConstants;
+import org.slf4j.LoggerFactory;
 import org.vivecraft.client.Xplat;
 import org.vivecraft.client_vr.ClientDataHolderVR;
 import org.vivecraft.server.config.ServerConfig;
@@ -54,11 +54,11 @@ public class UpdateChecker {
             conn.connect();
 
             if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                LogUtils.getLogger().error("Error " + conn.getResponseCode() + " fetching Vivecraft updates");
+                LoggerFactory.getLogger("Vivecraft").error("Error " + conn.getResponseCode() + " fetching Vivecraft updates");
                 return false;
             }
 
-            JsonElement j = JsonParser.parseString(inputStreamToString(conn.getInputStream()));
+            JsonElement j = new JsonParser().parse(inputStreamToString(conn.getInputStream()));
 
             List<Version> versions = new LinkedList<>();
 
@@ -91,7 +91,7 @@ public class UpdateChecker {
             // no carriage returns please
             changelog = changelog.replaceAll("\\r", "");
             if (hasUpdate) {
-                LogUtils.getLogger().info("Vivecraft update found: " + newestVersion);
+                LoggerFactory.getLogger("Vivecraft").info("Vivecraft update found: " + newestVersion);
             }
         } catch (IOException e) {
             e.printStackTrace();

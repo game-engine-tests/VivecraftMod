@@ -1717,7 +1717,7 @@ public class VRSettings {
             @Override
             void onOptionChange() {
                 // Reload the sound engine to get the new HRTF
-                Minecraft.getInstance().getSoundManager().reload();
+                Minecraft.getInstance().getSoundManager().soundEngine.reload();
             }
         },
         RELOAD_EXTERNAL_CAMERA(false, false) { // Reload External Camera

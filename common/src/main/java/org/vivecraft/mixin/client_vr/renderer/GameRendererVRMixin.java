@@ -702,7 +702,7 @@ public abstract class GameRendererVRMixin
     @Override
     @Unique
     public void vivecraft$setupClipPlanes() {
-        this.renderDistance = (float) (this.minecraft.options.getEffectiveRenderDistance() * 16);
+        this.renderDistance = (float) (this.minecraft.options.renderDistance * 16);
 
 //		if (Config.isFogOn()) { TODO
 //			this.renderDistance *= 0.95F;
