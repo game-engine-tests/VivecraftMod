@@ -23,10 +23,10 @@ import java.util.Objects;
 public class LibraryVRMixin {
     @Shadow
     @Final
-    static Logger LOGGER;
+    static org.apache.logging.log4j.Logger LOGGER;
 
     @Shadow
-    private long currentDevice;
+    private long device;
 
     @Unique
     private boolean vivecraft$checkALError(String string) {
@@ -52,20 +52,20 @@ public class LibraryVRMixin {
     }
 
     @Inject(method = "init", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/audio/OpenAlUtil;checkALError(Ljava/lang/String;)Z", ordinal = 0, shift = At.Shift.AFTER), locals = LocalCapture.CAPTURE_FAILHARD)
-    private void vivecraft$setHRTF(String string, CallbackInfo ci, ALCCapabilities aLCCapabilities, int i, int j, int k, ALCapabilities aLCapabilities) {
+    private void vivecraft$setHRTF(CallbackInfo ci, ALCCapabilities aLCCapabilities, int i, int j, int k, ALCapabilities aLCapabilities) {
         if (!VRState.vrRunning) {
             return;
         }
         ClientDataHolderVR.hrtfList.clear();
 
         if (aLCCapabilities.ALC_SOFT_HRTF) {
-            int l = ALC10.alcGetInteger(this.currentDevice, 6548);
+            int l = ALC10.alcGetInteger(this.device, 6548);
 
             if (l > 0) {
                 LOGGER.info("Available HRTFs:");
 
                 for (int i1 = 0; i1 < l; i1++) {
-                    String s = Objects.requireNonNull(SOFTHRTF.alcGetStringiSOFT(this.currentDevice, 6549, i1));
+                    String s = Objects.requireNonNull(SOFTHRTF.alcGetStringiSOFT(this.device, 6549, i1));
                     ClientDataHolderVR.hrtfList.add(s);
                     LOGGER.info("{}: {}", i1, s);
                 }
@@ -97,11 +97,11 @@ public class LibraryVRMixin {
                 }
 
                 ((Buffer) intbuffer.put(0)).flip();
-                SOFTHRTF.alcResetDeviceSOFT(this.currentDevice, intbuffer);
+                SOFTHRTF.alcResetDeviceSOFT(this.device, intbuffer);
 
                 if (!vivecraft$checkALError("HRTF initialization")) {
                     LOGGER.info("HRTF initialized.");
-                    int j1 = ALC10.alcGetInteger(this.currentDevice, 6547);
+                    int j1 = ALC10.alcGetInteger(this.device, 6547);
 
                     switch (j1) {
                         case 0 -> LOGGER.info("HRTF status: disabled");

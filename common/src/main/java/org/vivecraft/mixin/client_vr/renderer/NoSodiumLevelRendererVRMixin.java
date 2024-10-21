@@ -3,13 +3,11 @@ package org.vivecraft.mixin.client_vr.renderer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.culling.Frustum;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Constant;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyConstant;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.vivecraft.client_vr.VRState;
 import org.vivecraft.mixin.client.blaze3d.RenderSystemAccessor;
@@ -20,18 +18,21 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class NoSodiumLevelRendererVRMixin {
 
     @Shadow
-    private boolean needsFullRenderChunkUpdate;
+    private boolean needsUpdate;
 
-    @Shadow
-    @Final
-    private AtomicBoolean needsFrustumUpdate;
-
-    @Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;needsFullRenderChunkUpdate:Z", ordinal = 1, shift = At.Shift.AFTER), method = "setupRender(Lnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/culling/Frustum;ZZ)V")
-    public void vivecraft$alwaysUpdateCull(Camera camera, Frustum frustum, boolean bl, boolean bl2, CallbackInfo info) {
+    @Redirect(
+        at = @At(
+            value = "FIELD",
+            target = "Lnet/minecraft/client/renderer/LevelRenderer;needsUpdate:Z",
+            opcode = Opcodes.PUTFIELD
+        ),
+        method = "*"
+    )
+    public void vivecraft$alwaysUpdateCull(LevelRenderer that, boolean old) {
         if (VRState.vrRunning) {
-            this.needsFullRenderChunkUpdate = true;
-            // if VR is on, always update the frustum, to fix flickering chunks between eyes
-            needsFrustumUpdate.set(true);
+            this.needsUpdate = true;
+        } else {
+            this.needsUpdate = old;
         }
     }
 

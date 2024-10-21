@@ -273,7 +273,7 @@ public abstract class MinecraftVRMixin implements MinecraftExtension {
         }
     }
 
-    @Inject(at = @At(value = "HEAD", target = "Lnet/minecraft/client/Minecraft;delayCrash(Lnet/minecraft/CrashReport;)V"))
+    @Inject(method = "delayCrash(Lnet/minecraft/CrashReport;)V", at = @At(value = "HEAD"))
     public void vivecraft$destroy(CallbackInfo info) {
         try {
             // the game crashed probably not because of us, so keep the vr choice

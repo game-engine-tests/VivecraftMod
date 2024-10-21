@@ -5,6 +5,7 @@ import com.google.gson.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class ProfileManager {
@@ -72,40 +73,39 @@ public class ProfileManager {
     }
 
     private static void validateProfiles() throws Exception {
-        for (Object object : profiles.keySet()) {
-            String s = (String) object;
+        /*for (Map.Entry<String, JsonElement> object : profiles.entrySet()) {
+            String s = object.getKey();
             Object object1 = profiles.get(s);
 
-            if (object1 instanceof JsonObject JsonObject) {
+            if (object1 instanceof JsonObject jsonObject) {
                 JsonObject JsonObject1 = null;
                 JsonObject JsonObject2 = null;
                 JsonObject JsonObject3 = null;
                 JsonObject JsonObject4 = null;
 
-                for (Object object2 : JsonObject.keySet()) {
-                    String s1 = (String) object2;
-                    Object object3 = JsonObject.get(s1);
+                for (String object2 : jsonObject.keySet()) {
+                    JsonElement object3 = jsonObject.get(object2);
 
                     if (object3 instanceof JsonObject) {
-                        if (s1.equals("Mc")) {
+                        if (object2.equals("Mc")) {
                             JsonObject1 = (JsonObject) object3;
                         }
 
-                        if (s1.equals("Of")) {
+                        if (object2.equals("Of")) {
                             JsonObject2 = (JsonObject) object3;
                         }
 
-                        if (s1.equals("Vr")) {
+                        if (object2.equals("Vr")) {
                             JsonObject3 = (JsonObject) object3;
                         }
 
-                        if (s1.equals("Controller")) {
+                        if (object2.equals("Controller")) {
                             JsonObject4 = (JsonObject) object3;
                         }
                     }
                 }
             }
-        }
+        }*/
     }
 
     private static synchronized boolean loadLegacySettings(File settingsFile, JsonObject theProfile, String set) throws Exception {
@@ -190,9 +190,9 @@ public class ProfileManager {
             if (JsonObject.has(set)) {
                 JsonObject JsonObject1 = JsonObject.get(set).getAsJsonObject();
 
-                for (String s : JsonObject1.keySet()) {
-                    String s1 = JsonObject1.get(s).getAsString();
-                    map.put(s, s1);
+                for (Map.Entry<String, JsonElement> s : JsonObject1.entrySet()) {
+                    String s1 = JsonObject1.get(s.getKey()).getAsString();
+                    map.put(s.getKey(), s1);
                 }
             }
         }
@@ -206,9 +206,9 @@ public class ProfileManager {
         if (theProfile.has(set)) {
             JsonObject JsonObject = theProfile.get(set).getAsJsonObject();
 
-            for (String s : JsonObject.keySet()) {
-                String s1 = JsonObject.get(s).getAsString();
-                map.put(s, s1);
+            for (Map.Entry<String, JsonElement> s : JsonObject.entrySet()) {
+                String s1 = JsonObject.get(s.getKey()).getAsString();
+                map.put(s.getKey(), s1);
             }
         }
 
@@ -216,7 +216,7 @@ public class ProfileManager {
     }
 
     public static synchronized void setProfileSet(String profile, String set, Map<String, String> settings) {
-        JsonObject JsonObject = null;
+        JsonObject JsonObject;
         JsonObject JsonObject1 = new JsonObject();
 
         if (profiles.has(profile)) {
@@ -264,8 +264,7 @@ public class ProfileManager {
     }
 
     public static synchronized SortedSet<String> getProfileList() {
-        Set<String> set = profiles.keySet();
-        return new TreeSet<>(set);
+        return profiles.entrySet().stream().map(Map.Entry::getKey).collect(Collectors.toCollection(TreeSet::new));
     }
 
     private static JsonObject getCurrentProfile() {
@@ -273,7 +272,7 @@ public class ProfileManager {
             return null;
         } else {
             Object object = profiles.get(currentProfileName);
-            return object != null && object instanceof JsonObject ? (JsonObject) object : null;
+            return object instanceof JsonObject ? (JsonObject) object : null;
         }
     }
 
