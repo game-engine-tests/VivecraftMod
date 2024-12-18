@@ -200,6 +200,10 @@ public class VRPassHelper {
             ((RenderTargetExtension) rendertarget).vivecraft$blitFovReduction(VRShaders.fovReductionShader, dataHolder.vrRenderer.framebufferEye0.viewWidth, dataHolder.vrRenderer.framebufferEye0.viewHeight);
             checkGLError("post overlay" + eye);
             Profiler.get().pop();
+
+            VRShaders.ViewportInfo.setSafe(0.0f, 0.0f,  dataHolder.vrRenderer.framebufferEye0.viewWidth, dataHolder.vrRenderer.framebufferEye0.viewHeight);
+            ((RenderTargetExtension) rendertarget).vivecraft$blitToScreen(0, dataHolder.vrRenderer.framebufferEye0.viewWidth, dataHolder.vrRenderer.framebufferEye0.viewHeight, 0, false, 0,  0, true);
+            checkGLError("post overlay" + eye);
         }
 
         if (dataHolder.currentPass == RenderPass.CAMERA) {

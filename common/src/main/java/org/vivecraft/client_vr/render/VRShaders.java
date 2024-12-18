@@ -45,6 +45,12 @@ public class VRShaders {
     public static AbstractUniform _Overlay_time;
     public static AbstractUniform _Overlay_BlackAlpha;
     public static AbstractUniform _Overlay_eye;
+    public static AbstractUniform ViewportInfo;
+
+    public static final ShaderProgram gsrShader = new ShaderProgram(
+        ResourceLocation.fromNamespaceAndPath("vivecraft", "core/gsr"),
+        DefaultVertexFormat.POSITION_TEX, ShaderDefines.EMPTY
+    );
 
     public static final ShaderProgram blitAspectShader = new ShaderProgram(
         ResourceLocation.fromNamespaceAndPath("vivecraft", "core/blit_aspect"),
@@ -101,5 +107,11 @@ public class VRShaders {
 
     public static void setupBlitAspect() throws Exception {
         Minecraft.getInstance().getShaderManager().getProgram(blitAspectShader);
+    }
+
+    public static void setupGSR() throws Exception {
+        CompiledShaderProgram program = Minecraft.getInstance().getShaderManager().getProgram(gsrShader);
+
+        ViewportInfo = program.safeGetUniform("ViewportInfo");
     }
 }
